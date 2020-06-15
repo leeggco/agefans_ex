@@ -19,8 +19,11 @@
 v1.0.0 发布
 
 ## 截图
+### 我的追番
 ![image.png](https://i.loli.net/2020/06/15/lEAdS3Xxi8YgB9Q.png)
+### 看番历史
 ![image.png](https://i.loli.net/2020/06/15/sSbdAqzKw9uZXMp.png)
+### 追番按钮
 ![image.png](https://i.loli.net/2020/06/15/gm6aH8FXRfAzyrJ.png)
 
 ## 声明
