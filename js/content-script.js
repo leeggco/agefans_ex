@@ -78,8 +78,7 @@ for (let i = 0; i < $navs.length; i++) {
 
 // 追番
 const hrefIndex = href.indexOf('detail')
-const hrefIndex2 = href.indexOf('play')
-if (hrefIndex > -1 || hrefIndex2 > -1) {
+if (hrefIndex > -1) {
   const fanid = href.substr(hrefIndex + 7)
   const $blockcontent = document.querySelector('.div_right').querySelector('.blockcontent')
   $favoriteBtn.setAttribute('data-fanid', fanid)
@@ -435,7 +434,6 @@ if (href.indexOf('/play/') > -1) {
   name = document.querySelector('#detailname').innerText
   for(let i = 0; i < $movurl.length; i++) {
     if ($movurl[i].getAttribute('style').indexOf('block') > -1) {
-      console.log(88888888)
       other = $movurl[i].querySelectorAll('li')[$movurl[i].querySelectorAll('li').length - 1].innerText
       // 遍历列表，取当前播放集
       const $lis = $movurl[i].querySelectorAll('li')
@@ -446,8 +444,6 @@ if (href.indexOf('/play/') > -1) {
       }
     }
   }
-
-
     
   // 获取当前播放位置
   const timer = setInterval(() => {
@@ -456,7 +452,6 @@ if (href.indexOf('/play/') > -1) {
       console.log('保存成功！')
     })
   }, 500)
-
 }
 
 // 建立长连接

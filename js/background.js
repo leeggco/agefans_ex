@@ -1,3 +1,6 @@
+const hostUrl = 'http://122.51.248.81:3000'
+// const hostUrl = 'http://localhost:3000'
+
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	console.log('收到来自content-script的消息：')
@@ -5,7 +8,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   
   // 用户登录
   if (request.type === 'login') {
-    axios.post('http://122.51.248.81:3000/users/login', request.payload)
+    axios.post(hostUrl + '/users/login', request.payload)
       .then(function (response) {
         console.log(response)
         sendResponse(response)
@@ -21,7 +24,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   // 用户注册
   if (request.type === 'register') {
-    axios.post('http://122.51.248.81:3000/users/register', request.payload)
+    axios.post(hostUrl + '/users/register', request.payload)
       .then(function (response) {
         console.log(response)
         sendResponse(response)
@@ -36,7 +39,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'favorite') {
     axios({
       method: 'post',
-      url: 'http://122.51.248.81:3000/favorite/set', 
+      url: hostUrl + '/favorite/set', 
       data: request.payload,
       headers: {
         authorization: request.payload.token
@@ -56,7 +59,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'cancleFavorite') {
     axios({
       method: 'post',
-      url: 'http://122.51.248.81:3000/favorite/cancle', 
+      url: hostUrl + '/favorite/cancle', 
       data: request.payload,
       headers: {
         authorization: request.payload.token
@@ -76,7 +79,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'myFavorite') {
     axios({
       method: 'post',
-      url: 'http://122.51.248.81:3000/favorite/list', 
+      url: hostUrl + '/favorite/list', 
       data: request.payload,
       headers: {
         authorization: request.payload.token
@@ -96,7 +99,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'myHistory') {
     axios({
       method: 'post',
-      url: 'http://122.51.248.81:3000/history/list', 
+      url: hostUrl + '/history/list', 
       data: request.payload,
       headers: {
         authorization: request.payload.token
@@ -117,7 +120,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'checkFavorite') {
     axios({
       method: 'post',
-      url: 'http://122.51.248.81:3000/favorite/check', 
+      url: hostUrl + '/favorite/check', 
       data: request.payload,
       headers: {
         authorization: request.payload.token
@@ -139,7 +142,7 @@ chrome.runtime.onConnect.addListener(function(port) {
   let url, fanid, lastPos, lastTime, cover, name, other
   console.assert(port.name == 'connection')
   port.onMessage.addListener(function(msg) {
-    if (msg.method == 'close') {
+    if (msg.method === 'close') {
       console.log('msg:', msg)
       url = msg.href
       fanid = msg.href.substr(msg.href.indexOf('play/') + 5)
@@ -161,7 +164,7 @@ chrome.runtime.onConnect.addListener(function(port) {
         if (items.lastTime) {
           lastTime = items.lastTime.substr(0, items.lastTime.indexOf(' /'))
         }
-        console.log('lastTime:', items.lastTime)
+        console.log('items.token:', items.token)
         console.log('关闭了！', url)
         if (url.indexOf('playid') > -1) {
           const params = {
@@ -178,7 +181,7 @@ chrome.runtime.onConnect.addListener(function(port) {
           // 新增历史
           axios({
             method: 'post',
-            url: 'http://122.51.248.81:3000/history/create', 
+            url: hostUrl + '/history/create', 
             data: params,
             headers: {
               authorization: items.token
@@ -195,7 +198,7 @@ chrome.runtime.onConnect.addListener(function(port) {
           // 更新追番
           axios({
             method: 'post',
-            url: 'http://122.51.248.81:3000/favorite/update', 
+            url: hostUrl + '/favorite/update', 
             data: params,
             headers: {
               authorization: items.token
@@ -209,6 +212,8 @@ chrome.runtime.onConnect.addListener(function(port) {
             console.log(error)
           })
         }
+      } else {
+        console.log('?????')
       }
     })
   })
