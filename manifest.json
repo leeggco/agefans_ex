@@ -1,0 +1,32 @@
+{
+  "name": "agefans.tv，AGE动漫追番扩展",
+  "version": "1.0.0",
+  "description": "你指尖跃动的电光，是我此生不灭的信仰",
+  "manifest_version": 2,
+    "icons": {
+      "128": "baike.png",
+      "48": "baike.png",
+      "16": "baike.png"
+    },
+  "permissions": [
+    "tabs",
+    "storage",
+    "http://www.agefans.tv/*", "https://www.agefans.tv/*"
+  ],
+  "browser_action": {
+    "dafault_title": "AGEFANS_扩展"
+  },
+  "background":{
+    "scripts":["js/axios.min.js", "js/background.js"],
+    "persistent": false
+  },
+	"content_scripts": [
+		{
+			"matches": ["http://www.agefans.tv/*", "https://www.agefans.tv/*"],
+      "js": ["js/content-script.js"],
+      "css": ["css/custom.css"],
+			"run_at": "document_idle"
+		}
+  ],
+  "homepage_url": "https://github.com/leeggco"
+}	
