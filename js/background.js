@@ -1,23 +1,17 @@
 const hostUrl = 'http://122.51.248.81:3000'
-// const hostUrl = 'http://localhost:3000'
 
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	console.log('收到来自content-script的消息：')
-  console.log(request, sender, sendResponse)
   
   // 用户登录
   if (request.type === 'login') {
     axios.post(hostUrl + '/users/login', request.payload)
       .then(function (response) {
-        console.log(response)
         sendResponse(response)
         chrome.storage.sync.set({ user: response.data, token: response.data.token }, function() {
-          console.log('保存成功！');
         })
       })
       .catch(function (error) {
-        console.log(error)
       })
       return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -26,11 +20,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'register') {
     axios.post(hostUrl + '/users/register', request.payload)
       .then(function (response) {
-        console.log(response)
         sendResponse(response)
       })
       .catch(function (error) {
-        console.log(error)
       })
       return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -46,11 +38,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
     })
     .then(function (response) {
-      console.log(response)
       sendResponse(response)
     })
     .catch(function (error) {
-      console.log(error)
     })
     return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -66,11 +56,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
     })
     .then(function (response) {
-      console.log(response)
       sendResponse(response)
     })
     .catch(function (error) {
-      console.log(error)
     })
     return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -86,11 +74,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
     })
     .then(function (response) {
-      console.log(response)
       sendResponse(response)
     })
     .catch(function (error) {
-      console.log(error)
     })
     return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -106,11 +92,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
     })
     .then(function (response) {
-      console.log(response)
       sendResponse(response)
     })
     .catch(function (error) {
-      console.log(error)
     })
 
     return true // keeps the message channel open until `sendResponse` is executed
@@ -127,11 +111,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
     })
     .then(function (response) {
-      console.log(response)
       sendResponse(response)
     })
     .catch(function (error) {
-      console.log(error)
     })
     return true // keeps the message channel open until `sendResponse` is executed
   }
@@ -143,7 +125,6 @@ chrome.runtime.onConnect.addListener(function(port) {
   console.assert(port.name == 'connection')
   port.onMessage.addListener(function(msg) {
     if (msg.method === 'close') {
-      console.log('msg:', msg)
       url = msg.href
       fanid = msg.href.substr(msg.href.indexOf('play/') + 5)
       fanid = fanid.substr(0, fanid.indexOf('?playid'))
@@ -164,8 +145,6 @@ chrome.runtime.onConnect.addListener(function(port) {
         if (items.lastTime) {
           lastTime = items.lastTime.substr(0, items.lastTime.indexOf(' /'))
         }
-        console.log('items.token:', items.token)
-        console.log('关闭了！', url)
         if (url.indexOf('playid') > -1) {
           const params = {
             userId: items.user.data.id,
@@ -188,11 +167,9 @@ chrome.runtime.onConnect.addListener(function(port) {
             }
           })
           .then(function (response) {
-            console.log(response)
             sendResponse(response)
           })
           .catch(function (error) {
-            console.log(error)
           })
 
           // 更新追番
@@ -205,15 +182,12 @@ chrome.runtime.onConnect.addListener(function(port) {
             }
           })
           .then(function (response) {
-            console.log(response)
             sendResponse(response)
           })
           .catch(function (error) {
-            console.log(error)
           })
         }
       } else {
-        console.log('?????')
       }
     })
   })

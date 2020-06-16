@@ -9,7 +9,6 @@
       "16": "baike.png"
     },
   "permissions": [
-    "tabs",
     "storage",
     "http://www.agefans.tv/*", "https://www.agefans.tv/*"
   ],

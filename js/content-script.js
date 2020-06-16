@@ -60,7 +60,6 @@ chrome.storage.sync.get({ user: null, token: null }, function(items) {
 // 退出账号
 $loginOut.addEventListener('click', function(ev) {
   chrome.storage.sync.clear(function() {
-    console.log('remove all')
     window.location.href='/'
   })
 })
@@ -449,7 +448,6 @@ if (href.indexOf('/play/') > -1) {
   const timer = setInterval(() => {
     lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
     chrome.storage.sync.set({ lastTime: lastTime }, function() {
-      console.log('保存成功！')
     })
   }, 500)
 }
@@ -484,7 +482,6 @@ function tokenFailed(res) {
     $loginArea.style.display = 'block'
     $loginOut.style.display = 'none'
     chrome.storage.sync.clear(function() {
-      console.log('remove all')
     })
   }
 }
