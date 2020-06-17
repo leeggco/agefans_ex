@@ -9,6 +9,7 @@
 3、历史列表
 
 ## 下载
+谷歌商店（审核中）
 见[下载页面](https://github.com/leeggco/agefans_ex/releases)
 
 ## 使用
