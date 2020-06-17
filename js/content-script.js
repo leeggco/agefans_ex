@@ -82,66 +82,9 @@ if (hrefIndex > -1) {
   const $blockcontent = document.querySelector('.div_right').querySelector('.blockcontent')
   $favoriteBtn.setAttribute('data-fanid', fanid)
   $unFavoriteBtn.setAttribute('data-fanid', fanid)
-  // $blockcontent.appendChild($favoriteBtn)
 
-  // 初始化追番状态
-  chrome.storage.sync.get({ user: null, token: null }, function(items) {
-    if (items.token) {
-      // 向后台通信
-      chrome.runtime.sendMessage({
-        type: 'checkFavorite',
-        payload: { fanId: fanid, userId: items.user.data.id, token: items.token }
-      }, function(response) {
-        console.log(response)
-        // 如果已经追番则显示已追番按钮
-        if (response.data.result) {
-          $blockcontent.appendChild($unFavoriteBtn)
-        } else {
-          $blockcontent.appendChild($favoriteBtn)
-        }
-      })
-    }
-  })
-
-  // 追番事件
-  $favoriteBtn.addEventListener('click', function() {
-    chrome.storage.sync.get({ user: null, token: null }, function(items) {
-      if (items.token) {
-        // 向后台通信
-        chrome.runtime.sendMessage({
-          type: 'favorite',
-          payload: { fanId: fanid, userId: items.user.data.id, token: items.token, base: getBaseInfo() }
-        }, function(response) {
-          $favoriteBtn.style.display = 'none'
-          // 如果已经追番则显示已追番按钮
-          if (response.data.result) {
-            $blockcontent.appendChild($unFavoriteBtn)
-            $unFavoriteBtn.style.display = 'block'
-          }
-        })
-      }
-    })
-  })
-
-  // 取消追番
-  $unFavoriteBtn.addEventListener('click', function() {
-    chrome.storage.sync.get({ user: null, token: null }, function(items) {
-      if (items.token) {
-        // 向后台通信
-        chrome.runtime.sendMessage({
-          type: 'cancleFavorite',
-          payload: { fanId: fanid, userId: items.user.data.id, token: items.token, base: getBaseInfo() }
-        }, function(response) {
-          $unFavoriteBtn.style.display = 'none'
-          // 如果已经追番则显示已追番按钮
-          if (response.data.result) {
-            $blockcontent.appendChild($favoriteBtn)
-            $favoriteBtn.style.display = 'block'
-          }
-        })
-      }
-    })
-  })
+  // 初始化状态
+  initFn(fanid, $blockcontent)
 }
 
 // 我的追番
@@ -204,6 +147,67 @@ $a2.addEventListener('click', function(ev) {
 
 })
 
+// 初始化状态
+function initFn(fanid, $el) {
+  chrome.storage.sync.get({ user: null, token: null }, function(items) {
+    if (items.token) {
+      // 向后台通信
+      chrome.runtime.sendMessage({
+        type: 'checkFavorite',
+        payload: { fanId: fanid, userId: items.user.data.id, token: items.token }
+      }, function(response) {
+        console.log(response)
+        // 如果已经追番则显示已追番按钮
+        if (response.data.result) {
+          $el.appendChild($unFavoriteBtn)
+        } else {
+          $el.appendChild($favoriteBtn)
+        }
+      })
+    }
+  })
+
+  // 追番事件
+  $favoriteBtn.addEventListener('click', function() {
+    chrome.storage.sync.get({ user: null, token: null }, function(items) {
+      if (items.token) {
+        // 向后台通信
+        chrome.runtime.sendMessage({
+          type: 'favorite',
+          payload: { fanId: fanid, userId: items.user.data.id, token: items.token, base: getBaseInfo() }
+        }, function(response) {
+          $favoriteBtn.style.display = 'none'
+          // 如果已经追番则显示已追番按钮
+          if (response.data.result) {
+            $el.appendChild($unFavoriteBtn)
+            $unFavoriteBtn.style.display = 'block'
+          }
+        })
+      }
+    })
+  })
+
+  // 取消追番
+  $unFavoriteBtn.addEventListener('click', function() {
+    chrome.storage.sync.get({ user: null, token: null }, function(items) {
+      if (items.token) {
+        // 向后台通信
+        chrome.runtime.sendMessage({
+          type: 'cancleFavorite',
+          payload: { fanId: fanid, userId: items.user.data.id, token: items.token, base: getBaseInfo() }
+        }, function(response) {
+          $unFavoriteBtn.style.display = 'none'
+          // 如果已经追番则显示已追番按钮
+          if (response.data.result) {
+            $el.appendChild($favoriteBtn)
+            $favoriteBtn.style.display = 'block'
+          }
+        })
+      }
+    })
+  })
+}
+
 // 设置当前导航高亮
 function setCurent(el) {
   const $navs = $nav.getElementsByClassName('nav_button')
@@ -235,11 +239,17 @@ function createFavoriteContent(list) {
           <div class="des">${data.description}</div>
           <div class="type">${data.region} | ${data.state}</div>
           <div class="state">
-            ${list[i].lastTime ? '看到 ' : ''}
-            <a href="${list[i].lastUrl}">
-              ${list[i].lastTime ? list[i].lastTime : ''} ${list[i].lastPos ? list[i].lastPos : ''}
-            </a>
-             ${data.other ? '| ' + data.other : ''}
+            ${ list[i].lastTime 
+              ? 
+              `看到 <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
+                ${list[i].lastTime.indexOf('00') === 0 ? list[i].lastTime.substring(3) : list[i].lastTime} ${list[i].lastPos ? list[i].lastPos : ''}
+              </a>`
+              :
+              `<a href="${list[i].lastUrl}">
+                ${list[i].lastTime ? list[i].lastTime : ''} ${list[i].lastPos ? list[i].lastPos : ''}
+              </a>`
+            }
+            ${list[i].lastTime && data.other ? '| ' : ''}${data.other ? data.other : ''}
           </div>
         </div>
       </div>`
@@ -265,8 +275,9 @@ function createHistoryContent(list) {
           <div class="title"><a href="https://www.agefans.tv/detail/${list[i].fanId}">${list[i].name}</a></div>
           <div class="state">
             看到
-            <a href="${list[i].lastUrl}">
-              ${list[i].lastTime ? list[i].lastTime : ''} ${list[i].lastPos ? list[i].lastPos : ''}
+            <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
+              ${list[i].lastTime.indexOf('00') === 0 ? list[i].lastTime.substring(3) : list[i].lastTime} 
+              ${list[i].lastPos ? list[i].lastPos : ''}
             </a>
             | ${list[i].other}
           </div>
@@ -323,7 +334,7 @@ function createLoginContent() {
         $exTips.innerText = response.data.message + '，正在返回首页...'
         setTimeout(() => {
           window.location.href='/'
-        }, 2000)
+        }, 1500)
       } else {
         $exTips.innerText = response.data.message
       }
@@ -345,7 +356,7 @@ function createRegisterContent() {
         <p>
           <label for="id_password1">密码:</label>
           <input type="password" name="password1" required id="re_password1" maxlength="16">
-          <span class="helptext">必填。5-16个字符，字母+数字组合</span>
+          <span class="helptext">必填。5-16个字符</span>
         </p>
         <p>
           <label for="id_password2">密码确认:</label>
@@ -402,24 +413,41 @@ function getStorage() {
   return data
 }
 
-// 获取番剧基本信息
+// 番剧基本信息
 function getBaseInfo() {
-  const $movurl = document.querySelector('#main0').querySelectorAll('.movurl')
-  let other
-  for(let i = 0; i < $movurl.length; i++) {
-    if ($movurl[i].getAttribute('style') === 'display: block;') {
-      other = $movurl[i].querySelectorAll('li')[$movurl[i].querySelectorAll('li').length - 1].innerText
+  let other, baseInfo
+  if (href.indexOf('detail') > -1) {
+    const $movurl = document.querySelector('#main0').querySelectorAll('.movurl')
+    for(let i = 0; i < $movurl.length; i++) {
+      if ($movurl[i].getAttribute('style').indexOf('block') > -1) {
+        other = $movurl[i].querySelectorAll('li')[$movurl[i].querySelectorAll('li').length - 1].innerText
+      }
+    }
+    baseInfo = {
+      fanId: href.substr(hrefIndex + 7),
+      name: document.querySelector('.div_right').querySelector('.detail_imform_name').innerText,
+      description: document.querySelector('.div_right').querySelector('.detail_imform_desc_pre').innerText,
+      cover: document.querySelector('.div_left').querySelector('.poster').getAttribute('src'),
+      region: document.querySelector('#container > div.div_left > div:nth-child(2) > div > div > ul > li:nth-child(1) > span.detail_imform_value').innerText,
+      state: document.querySelector("#container > div.div_left > div:nth-child(2) > div > div > ul > li:nth-child(8) > span.detail_imform_value").innerText,
+      other: other
+    }
+  } else if(href.indexOf('/play/') > -1) {
+    const s1 = href.indexOf('/play/')
+    const s2 = href.indexOf('?playid')
+    const fanid = href.substring(s1 + 6, s2)
+    baseInfo = {
+      fanId: fanid,
+      name: document.querySelector("#detailname > a").innerText,
+      description: document.querySelector(".play_desc").innerText,
+      cover: document.querySelector("#play_poster_img").getAttribute('src'),
+      region: document.querySelector("#play_imform > li:nth-child(1) > span.play_imform_val").innerText,
+      state: document.querySelector("#play_imform > li:nth-child(8) > span.play_imform_val").innerText,
+      other: other
     }
   }
-  return {
-    fanId: href.substr(hrefIndex + 7),
-    name: document.querySelector('.div_right').querySelector('.detail_imform_name').innerText,
-    description: document.querySelector('.div_right').querySelector('.detail_imform_desc_pre').innerText,
-    cover: document.querySelector('.div_left').querySelector('.poster').getAttribute('src'),
-    region: document.querySelector('#container > div.div_left > div:nth-child(2) > div > div > ul > li:nth-child(1) > span.detail_imform_value').innerText,
-    state: document.querySelector("#container > div.div_left > div:nth-child(2) > div > div > ul > li:nth-child(8) > span.detail_imform_value").innerText,
-    other: other
-  }
+
+  return baseInfo
 }
 
 // 当前播放集, 最后播放位置
@@ -428,6 +456,26 @@ let lastPos, lastTime, cover, name, other
 // 播放页判断
 if (href.indexOf('/play/') > -1) {
   const $movurl = document.querySelector('#main0').querySelectorAll('.movurl')
+  const $detailname = document.querySelector('#detailname')
+  const s1 = href.indexOf('/play/')
+  const s2 = href.indexOf('?playid')
+  const fanid = href.substring(s1 + 6, s2)
+
+  // 初始化状态
+  initFn(fanid, $detailname)
+
+  // 跳转到上次播放的位置
+  if (getQueryString('lastTime')) {
+    const setTime = setInterval(() => {
+      const $video = document.getElementById('age_playfram').contentWindow.document.querySelector('video')
+      if ($video) {
+        $video.currentTime = dateToSecond(getQueryString('lastTime'))
+        // 清除定时器
+        clearInterval(setTime)
+      }
+    }, 1000)
+  }
+
   // 信息获取
   cover = document.querySelector('#play_poster_img').getAttribute('src')
   name = document.querySelector('#detailname').innerText
@@ -446,10 +494,36 @@ if (href.indexOf('/play/') > -1) {
     
   // 获取当前播放位置
   const timer = setInterval(() => {
-    lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
-    chrome.storage.sync.set({ lastTime: lastTime }, function() {
-    })
-  }, 500)
+    const $video = document.getElementById('age_playfram').contentWindow.document.querySelector('video')
+    // lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
+    if ($video) {
+      lastTime = secondToDate($video.currentTime)
+    }
+    //  else {
+    //   lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
+    // }
+    chrome.storage.sync.set({ lastTime: lastTime })
+  }, 1000)
+}
+
+// 秒转时间
+function secondToDate(second) {
+  let result
+  let time = parseInt(second)
+  const h = Math.floor(time / 3600) < 10 ? '0'+ Math.floor(time / 3600) : Math.floor(time / 3600)
+  const m = Math.floor((time / 60 % 60)) < 10 ? '0' +  Math.floor((time / 60 % 60)) : Math.floor((time / 60 % 60))
+  const s = Math.floor((time % 60)) < 10 ? '0' + Math.floor((time % 60)) : Math.floor((time % 60))
+
+  return `${h}:${m}:${s}`
+}
+
+// 时间转秒
+function dateToSecond(date) {
+  const h = date.split(':')[0]
+  const m = date.split(':')[1]
+  const s = date.split(':')[2]
+
+  return Number(h * 3600) + Number(m * 60) + Number(s)
 }
 
 // 建立长连接
@@ -510,4 +584,11 @@ function dateFormat(fmt, date) {
   }
 
   return fmt
+}
+
+// 获取url参数
+function getQueryString(name) {
+  var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+  var r = window.location.search.substr(1).match(reg);
+  if (r != null) return unescape(r[2]); return null;
 }

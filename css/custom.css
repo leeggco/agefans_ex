@@ -108,7 +108,8 @@
 
 .favorite_btn {
   float: right;
-  color: #60b8cc;
+  color: #60b8cc !important;
+  font-size: 15px !important;
   text-decoration: none;
   text-align: center;
   height: 24px;
