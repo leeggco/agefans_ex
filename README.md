@@ -1,6 +1,6 @@
 # agefans.tv，AGE动漫追番扩展
 本人是个番剧爱好者，Agefans是我比较常用的网站，可惜网站缺少追番和历史功能，追番感觉不是很方便，所以便萌生为Agefans开发扩展的想法。
-如果觉得有帮助请点个star或推荐给朋友，这是我能得到的最大快乐。
+
 
 ## 下载
 见[下载页面](https://github.com/leeggco/agefans_ex/releases)
