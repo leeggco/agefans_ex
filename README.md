@@ -13,7 +13,7 @@
 
 无法翻墙下载crx文件安装，见[下载页面](https://github.com/leeggco/agefans_ex/releases)
 
-## 使用
+## 安装
 
 1、下载crx文件
 
