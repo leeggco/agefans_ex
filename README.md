@@ -11,7 +11,7 @@
 ## 下载
 [谷歌商店](https://chrome.google.com/webstore/detail/agefanstv%EF%BC%8Cage%E5%8A%A8%E6%BC%AB%E8%BF%BD%E7%95%AA%E6%89%A9%E5%B1%95/llpmceedcmcimdoejmfiifnlbjfnhlck?authuser=0&hl=zh-CN)（**推荐**）需要翻墙
 
-无法翻墙下载crx文件安装，见[下载页面](https://github.com/leeggco/agefans_ex/releases)
+无法翻墙下载请crx文件安装，见[下载页面](https://github.com/leeggco/agefans_ex/releases)
 
 ## 安装
 
