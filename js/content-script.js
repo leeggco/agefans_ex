@@ -579,7 +579,7 @@ function dateFormat(fmt, date) {
   }
 
   // 判断日期是否为今天
-  if (new Date().getTime() - new Date(date).getTime() < 86400000) {
+  if (new Date().getDate() === new Date(date).getDate()) {
     fmt = '今天 ' + fmt.substr(10)
   }
 
