@@ -42,7 +42,7 @@ v1.0.2
 
 ## 赞助
 
-请作者喝冰阔落
+开心的话，请作者喝冰阔落 (o≖◡≖)
 
 ![未标题-1.png](https://i.loli.net/2020/06/18/xl2PujGQ8hSNofR.png)![未标题2-1.png](https://i.loli.net/2020/06/18/McHCBzaKlFrjTON.png)
 ## 声明
