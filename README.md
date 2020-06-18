@@ -40,5 +40,9 @@ v1.0.2
 ### 追番按钮
 ![image.png](https://i.loli.net/2020/06/15/gm6aH8FXRfAzyrJ.png)
 
+## 赞助
+请作者喝冰阔落
+![微信支付](https://i.loli.net/2020/06/18/xl2PujGQ8hSNofR.png)![支付宝](https://i.loli.net/2020/06/18/McHCBzaKlFrjTON.png)
+
 ## 声明
 声明：本扩展作为自由开源的浏览器辅助插件，仅供学习交流，任何人均可免费获取产品与源码。如果认为你的合法权益收到侵犯请马上联系作者。
