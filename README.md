@@ -4,9 +4,9 @@
 ## 功能
 1、扩展用户（不与agefans.tv共通数据，扩展用户需要**先注册**才能使用全部功能）
 
-2、追番列表
+2、追番列表, 你的追番会记录在这里。
 
-3、历史列表
+3、历史列表，你看过的番会记录在这里。
 
 ## 下载
 [谷歌商店](https://chrome.google.com/webstore/detail/llpmceedcmcimdoejmfiifnlbjfnhlck)（**推荐**）需要翻墙
