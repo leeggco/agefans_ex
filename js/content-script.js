@@ -51,7 +51,6 @@ chrome.storage.sync.get({ user: null, token: null }, function(items) {
       $registerArea.style.display = 'none'
     })
   } else {
-    console.log(items)
     $loginOut.innerText = `${items.user.data.username} | 退出`
     $mask.appendChild($loginOut)
   }
@@ -103,7 +102,6 @@ $a1.addEventListener('click', function(ev) {
         payload: { userId: items.user.data.id, token: items.token }
       }, function(response) {
         tokenFailed(response)
-        console.log(response)
         // 移除列表
         $el1 = document.querySelector('.favorite_content')
         $el2 = document.querySelector('.history_content')
@@ -156,7 +154,6 @@ function initFn(fanid, $el) {
         type: 'checkFavorite',
         payload: { fanId: fanid, userId: items.user.data.id, token: items.token }
       }, function(response) {
-        console.log(response)
         // 如果已经追番则显示已追番按钮
         if (response.data.result) {
           $el.appendChild($unFavoriteBtn)
@@ -228,7 +225,6 @@ function createFavoriteContent(list) {
   let $html = ''
   const $favoriteContent = document.createElement('div')
   $favoriteContent.setAttribute('class', 'favorite_content')
-  console.log(list.length, 9999999)
   if (list.length) {
     for (let i = 0; i < list.length; i++) {
       const data = list[i].BangumiData
@@ -329,7 +325,6 @@ function createLoginContent() {
     }
     // 向后台通信
     chrome.runtime.sendMessage({type: 'login', payload: data }, function(response) {
-      console.log(response)
       if (response.data.success) {
         $exTips.innerText = response.data.message + '，正在返回首页...'
         setTimeout(() => {
@@ -407,7 +402,6 @@ function createRegisterContent() {
 // 获取storage
 function getStorage() {
   const data = chrome.storage.sync.get({ user: null, token: null }, function(items) {
-    console.log(items.user, items.token)
     return { user: items.user, token: items.token }
   })
   return data
@@ -495,20 +489,15 @@ if (href.indexOf('/play/') > -1) {
   // 获取当前播放位置
   const timer = setInterval(() => {
     const $video = document.getElementById('age_playfram').contentWindow.document.querySelector('video')
-    // lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
     if ($video) {
       lastTime = secondToDate($video.currentTime)
     }
-    //  else {
-    //   lastTime = document.getElementById('age_playfram').contentWindow.document.body.innerText
-    // }
     chrome.storage.sync.set({ lastTime: lastTime })
   }, 1000)
 }
 
 // 秒转时间
 function secondToDate(second) {
-  let result
   let time = parseInt(second)
   const h = Math.floor(time / 3600) < 10 ? '0'+ Math.floor(time / 3600) : Math.floor(time / 3600)
   const m = Math.floor((time / 60 % 60)) < 10 ? '0' +  Math.floor((time / 60 % 60)) : Math.floor((time / 60 % 60))
@@ -540,17 +529,9 @@ port.postMessage({
   other: other
 })
 
-// 接收信息
-// port.onMessage.addListener(function(msg) {
-//   if (msg.method === 'answer') {
-//     console.log(msg.data)
-//   }
-// })
-
 // token 过期跳转到登录页
 function tokenFailed(res) {
   if (res.data.code === '999999') {
-    console.log(res.data.code)
     const $loginArea = document.querySelector('#loginArea')
     const $loginOut = document.querySelector('.loginOut')
     $loginArea.style.display = 'block'
@@ -561,7 +542,7 @@ function tokenFailed(res) {
 }
 
 function dateFormat(fmt, date) {
-  let ret, today = new Date()
+  let ret
   const opt = {
     'Y+': date.getFullYear().toString(),        // 年
     'm+': (date.getMonth() + 1).toString(),     // 月
