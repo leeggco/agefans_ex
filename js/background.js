@@ -120,7 +120,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   // 检查是否已追番
   if (request.type === 'checkFavorite2') {
-    console.log('checkFavorite2')
     axios({
       method: 'post',
       url: hostUrl + '/favorite/check', 
@@ -141,7 +140,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // 监听长连接
 chrome.runtime.onConnect.addListener(function(port) {
   let url, fanid, lastPos, lastTime, cover, name, other
-  console.assert(port.name == 'connection')
   port.onMessage.addListener(function(msg) {
     if (msg.method === 'close') {
       url = msg.href
@@ -151,10 +149,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       cover = msg.cover
       name = msg.name
       other = msg.other
-      // port.postMessage({
-      //   method: 'answer',
-      //   data: 111
-      // })
     }
   })
 
@@ -206,7 +200,6 @@ chrome.runtime.onConnect.addListener(function(port) {
           .catch(function (error) {
           })
         }
-      } else {
       }
     })
   })
