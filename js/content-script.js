@@ -229,9 +229,9 @@ function createFavoriteContent(list) {
     for (let i = 0; i < list.length; i++) {
       const data = list[i].BangumiData
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.tv/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
+        <div class="thumb"><a href="https://www.agefans.net/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.tv/detail/${data.fanId}">${data.name}</a></div>
+          <div class="title"><a href="https://www.agefans.net/detail/${data.fanId}">${data.name}</a></div>
           <div class="des">${data.description}</div>
           <div class="type">${data.region} | ${data.state}</div>
           <div class="state">
@@ -266,9 +266,9 @@ function createHistoryContent(list) {
   if (list.length) {
     for (let i = 0; i < list.length; i++) {
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.tv/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
+        <div class="thumb"><a href="https://www.agefans.net/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.tv/detail/${list[i].fanId}">${list[i].name}</a></div>
+          <div class="title"><a href="https://www.agefans.net/detail/${list[i].fanId}">${list[i].name}</a></div>
           <div class="state">
             看到
             <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
