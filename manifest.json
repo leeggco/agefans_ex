@@ -1,6 +1,6 @@
 {
   "name": "agefans.tv，AGE动漫追番扩展",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "Agefans扩展追番和历史功能,让追番更简单!",
   "manifest_version": 2,
     "icons": {
@@ -10,7 +10,7 @@
     },
   "permissions": [
     "storage",
-    "http://www.agefans.tv/*", "https://www.agefans.tv/*"
+    "http://www.agefans.net/*", "https://www.agefans.net/*", "http://www.agefans.cc/*", "https://www.agefans.cc/*"
   ],
   "browser_action": {
     "dafault_title": "AGEFANS_扩展"
@@ -21,7 +21,7 @@
   },
 	"content_scripts": [
 		{
-			"matches": ["http://www.agefans.tv/*", "https://www.agefans.tv/*"],
+			"matches": ["http://www.agefans.net/*", "https://www.agefans.net/*","http://www.agefans.cc/*", "https://www.agefans.cc/*"],
       "js": ["js/content-script.js"],
       "css": ["css/custom.css"],
 			"run_at": "document_idle"
