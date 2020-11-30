@@ -10,30 +10,36 @@ const $exTips = document.createElement('div')
 const $loginOut = document.createElement('div')
 const $a1 = document.createElement('a')
 const $a2 = document.createElement('a')
+const $a3 = document.createElement('a')
 $a1.setAttribute('class', 'nav_button ex_button')
 $a1.setAttribute('id', 'exFavorite')
 $a2.setAttribute('class', 'nav_button ex_button')
 $a2.setAttribute('id', 'exHistory')
+$a3.setAttribute('class', 'nav_button ex_button')
+$a3.setAttribute('id', 'exChat')
 $favoriteBtn.setAttribute('class', 'favorite_btn')
 $unFavoriteBtn.setAttribute('class', 'favorite_btn favorited')
 $mask.setAttribute('class', 'ex_mask')
 $mask.setAttribute('style', `min-height:${offsetHeight}px`)
 $exTips.setAttribute('class', 'exTips')
 $loginOut.setAttribute('class', 'loginOut')
-$a1.innerText = '我的追番'
+$a1.innerText = '追番'
 $a2.innerText = '历史'
+$a3.innerText = '交流'
 $favoriteBtn.innerText = '追番'
 $unFavoriteBtn.innerText = '已追番'
 $nav.appendChild($a1)
 $nav.appendChild($a2)
+$nav.appendChild($a3)
 $container.appendChild($mask)
 $mask.appendChild($exTips)
-
+let userData = {}
 // 初始化状态
 chrome.storage.sync.get({ user: null, token: null }, function(items) {
-  // 创建登录注册模块
+  // 创建模块
   createLoginContent()
   createRegisterContent()
+  createCommunityContent()
   if (!items.token) {
     // 去注册
     const $loginArea = document.querySelector('#loginArea')
@@ -52,6 +58,7 @@ chrome.storage.sync.get({ user: null, token: null }, function(items) {
     })
   } else {
     $loginOut.innerText = `${items.user.data.username} | 退出`
+    userData = items.user.data
     $mask.appendChild($loginOut)
   }
 })
@@ -103,8 +110,8 @@ $a1.addEventListener('click', function(ev) {
       }, function(response) {
         tokenFailed(response)
         // 移除列表
-        $el1 = document.querySelector('.favorite_content')
-        $el2 = document.querySelector('.history_content')
+        $el1 = document.querySelector('.history_content')
+        $el2 = document.querySelector('.favorite_content')
         if ($el1) $el1.remove()
         if ($el2) $el2.remove()
         // 生成列表
@@ -145,6 +152,31 @@ $a2.addEventListener('click', function(ev) {
 
 })
 
+// 交流
+$a3.addEventListener('click', function(ev) {
+  const $chatArea = document.querySelector('#chatArea')
+  $mask.style.display = 'block'
+  $chatArea.style.display = 'block'
+  setCurent($a3)
+
+  // 向后台通信
+  chrome.storage.sync.get({ user: null, token: null }, function(items) {
+    if (items.token) {
+      // 向后台通信
+      chrome.runtime.sendMessage({
+        type: 'topicList',
+        payload: { userId: items.user.data.id, token: items.token }
+      }, function(response) {
+        tokenFailed(response)
+        createChatContent(response.data)
+        console.log(8888, response.data)
+      })
+    } else {
+      $chatArea.style.display = 'block'
+    }
+  })
+})
+
 // 初始化状态
 function initFn(fanid, $el) {
   chrome.storage.sync.get({ user: null, token: null }, function(items) {
@@ -168,6 +200,7 @@ function initFn(fanid, $el) {
   $favoriteBtn.addEventListener('click', function() {
     chrome.storage.sync.get({ user: null, token: null }, function(items) {
       if (items.token) {
+        console.log('01', items)
         // 向后台通信
         chrome.runtime.sendMessage({
           type: 'favorite',
@@ -289,6 +322,41 @@ function createHistoryContent(list) {
   $mask.appendChild($favoriteContent)
 }
 
+// 交流区
+function createChatContent(list) {
+  let $html = ''
+  const articles = list.articles
+  const $chatContent = document.createElement('div')
+  $chatContent.setAttribute('class', 'chat_content')
+  console.log(3131, list)
+  if (articles.length) {
+    for (let i = 0; i < articles.length; i++) {
+      $html += `<div class="item" style="padding-bottom: 12px;margin-bottom: 12px;width: 740px;margin-left: 15px;border-bottom: 1px solid #404041;">
+        <div style="margin-bottom: 5px; color: #b8b8e0;">${ articles[i].content }</div>
+        <div style="display:flex; justify-content: space-between;">
+          <div class="left">
+            <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
+            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].createdAt)) }</span>
+          </div>
+          <div class="right">
+            <span class="replyButton" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+          </div>
+        </div>
+      </div>`
+    }
+  } else {
+    $html += '<div class="empty">这里空空如也，快去看番吧！</div>'
+  }
+
+  const replyButtons = document.querySelectorAll('.replyButton');
+  console.log(replyButtons)
+
+  $chatContent.innerHTML = $html
+  $mask.appendChild($chatContent)
+}
+
+
+
 // 登录区域
 function createLoginContent() {
   const $loginContent = document.createElement('div')
@@ -396,6 +464,44 @@ function createRegisterContent() {
         }
       })
     }
+  })
+}
+
+// 聊天区域
+function createCommunityContent() {
+  const $chatContent = document.createElement('div')
+  const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 740px; margin-left: 15px; margin-top: 15px;">
+    <div class="ex-content" style=" height: 105px;">
+      <textarea id="exTextArea" rows="3" cols="20" style="border: 1px solid #404041; width: 740px; max-width: 740px; min-height: 60px; max-height:60px;" placeholder="输入关键字"></textarea>
+      <div id="exSubmitButton" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发布</div>
+    </div>
+  </div>`
+  $chatContent.setAttribute('class', 'chat_content')
+  $chatContent.innerHTML = $html
+  $mask.appendChild($chatContent)
+
+  // 绑定发布事件
+  $exSubmitButton = document.querySelector('#exSubmitButton')
+  $exSubmitButton.addEventListener('click', function() {
+    textContent = document.querySelector('#exTextArea').value
+    const data = {
+      userId: userData.id,
+      userName: userData.username,
+      content: textContent
+    }
+    console.log(222, data)
+    // 向后台通信
+    chrome.runtime.sendMessage({type: 'newTopic', payload: data }, function(response) {
+      console.log(333, response)
+      // if (response.data.success) {
+      //   $exTips.innerText = response.data.message + '，正在返回首页...'
+      //   setTimeout(() => {
+      //     window.location.href='/'
+      //   }, 2000)
+      // } else {
+      //   $exTips.innerText = response.data.message
+      // }
+    })
   })
 }
 
