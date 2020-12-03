@@ -1,5 +1,5 @@
-// const hostUrl = 'http://122.51.248.81:3000'
-const hostUrl = 'http://localhost:3003'
+const hostUrl = 'http://122.51.248.81:3000'
+// const hostUrl = 'http://localhost:3003'
 
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
