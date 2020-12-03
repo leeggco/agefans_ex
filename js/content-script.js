@@ -34,12 +34,12 @@ $nav.appendChild($a3)
 $container.appendChild($mask)
 $mask.appendChild($exTips)
 let userData = {}
+let currentPage = 1
 // 初始化状态
 chrome.storage.sync.get({ user: null, token: null }, function(items) {
   // 创建模块
   createLoginContent()
   createRegisterContent()
-  createCommunityContent()
   if (!items.token) {
     // 去注册
     const $loginArea = document.querySelector('#loginArea')
@@ -57,17 +57,16 @@ chrome.storage.sync.get({ user: null, token: null }, function(items) {
       $registerArea.style.display = 'none'
     })
   } else {
-    $loginOut.innerText = `${items.user.data.username} | 退出`
+    $loginOut.innerHTML = `<span class="user">${items.user.data.username}</span><span id="logOut" class="out"> | 退出</span>`
     userData = items.user.data
     $mask.appendChild($loginOut)
+    $logOut = document.querySelector('#logOut')
+    $logOut.addEventListener('click', function(ev) {
+      chrome.storage.sync.clear(function() {
+        window.location.href='/'
+      })
+    })
   }
-})
-
-// 退出账号
-$loginOut.addEventListener('click', function(ev) {
-  chrome.storage.sync.clear(function() {
-    window.location.href='/'
-  })
 })
 
 // 导航处理
@@ -109,11 +108,7 @@ $a1.addEventListener('click', function(ev) {
         payload: { userId: items.user.data.id, token: items.token }
       }, function(response) {
         tokenFailed(response)
-        // 移除列表
-        $el1 = document.querySelector('.history_content')
-        $el2 = document.querySelector('.favorite_content')
-        if ($el1) $el1.remove()
-        if ($el2) $el2.remove()
+        removeContent()
         // 生成列表
         createFavoriteContent(response.data)
       })
@@ -139,43 +134,56 @@ $a2.addEventListener('click', function(ev) {
       }, function(response) {
         tokenFailed(response)
         // 移除列表
-        $el1 = document.querySelector('.history_content')
-        $el2 = document.querySelector('.favorite_content')
-        if ($el1) $el1.remove()
-        if ($el2) $el2.remove()
+        removeContent()
         createHistoryContent(response.data)
       })
     } else {
       $loginArea.style.display = 'block'
     }
   })
-
 })
 
 // 交流
 $a3.addEventListener('click', function(ev) {
-  const $chatArea = document.querySelector('#chatArea')
   $mask.style.display = 'block'
-  $chatArea.style.display = 'block'
+  currentPage = 1
   setCurent($a3)
+  removeContent()
+  createCommunityContent()
+  fetchChatData(currentPage)
+})
 
+function removeContent() {
+  // 移除列表
+  $el1 = document.querySelector('.history_content')
+  $el2 = document.querySelector('.favorite_content')
+  $el3 = document.querySelector('.chat_content')
+  $el4 = document.querySelector('.chat_content2')
+  if ($el1) $el1.remove()
+  if ($el2) $el2.remove()
+  if ($el3) $el3.remove()
+  if ($el4) $el4.remove()
+}
+
+// 获取交流区内容
+function fetchChatData(currentPage) {
+  const $loginArea = document.querySelector('#loginArea')
   // 向后台通信
   chrome.storage.sync.get({ user: null, token: null }, function(items) {
     if (items.token) {
       // 向后台通信
       chrome.runtime.sendMessage({
         type: 'topicList',
-        payload: { userId: items.user.data.id, token: items.token }
+        payload: { userId: items.user.data.id, token: items.token, currentPage: currentPage }
       }, function(response) {
         tokenFailed(response)
         createChatContent(response.data)
-        console.log(8888, response.data)
       })
     } else {
-      $chatArea.style.display = 'block'
+      $loginArea.style.display = 'block'
     }
   })
-})
+}
 
 // 初始化状态
 function initFn(fanid, $el) {
@@ -200,7 +208,6 @@ function initFn(fanid, $el) {
   $favoriteBtn.addEventListener('click', function() {
     chrome.storage.sync.get({ user: null, token: null }, function(items) {
       if (items.token) {
-        console.log('01', items)
         // 向后台通信
         chrome.runtime.sendMessage({
           type: 'favorite',
@@ -324,38 +331,128 @@ function createHistoryContent(list) {
 
 // 交流区
 function createChatContent(list) {
-  let $html = ''
-  const articles = list.articles
+  
+  const oldEl = document.querySelector('.chat_content2')
+  const articles = list.articles.rows
   const $chatContent = document.createElement('div')
-  $chatContent.setAttribute('class', 'chat_content')
-  console.log(3131, list)
+  $chatContent.setAttribute('class', 'chat_content2')
+  $chatContent.style.position = 'relative'
+  if (oldEl) {
+    $mask.removeChild(oldEl)
+  }
+  let $html = `<div class="newTopic" style=" position: absolute; right: 85px; top: 50px; "><a href="#">发表新主题</a></div>`
   if (articles.length) {
     for (let i = 0; i < articles.length; i++) {
-      $html += `<div class="item" style="padding-bottom: 12px;margin-bottom: 12px;width: 740px;margin-left: 15px;border-bottom: 1px solid #404041;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;">${ articles[i].content }</div>
+      let comments = ''
+      if (articles[i].Comments.length) {
+        articles[i].Comments.forEach((item, index) => {
+          comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
+            <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;">↳</div>
+            <div style="margin-bottom: 5px; color: #b8b8e0;">${item.content}</div>
+            <div class="left">
+              <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
+              <span style="color: #808080; font-size: 13px">${item.userName}</span>
+              <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(item.updatedAt)) }</span>
+            </div>
+          </div>`
+        })
+      }
+      $html += `<div class="item" style="padding-bottom: 12px;margin-bottom: 12px;width: 740px;margin-left: 15px;border-bottom: 2px solid #404041;">
+        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="color: #b8b8e0;">${ articles[i].content }</pre></div>
         <div style="display:flex; justify-content: space-between;">
           <div class="left">
             <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
-            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].createdAt)) }</span>
+            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].updatedAt)) }</span>
           </div>
-          <div class="right">
-            <span class="replyButton" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+          <div class="right" style="position: relative;">
+            <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复(${articles[i].Comments.length})</span>
+            <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
+              <input class="replyInput" placeholder="输入..." type="text" value="" />
+              <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
+              <span class="cancle" style="color: #808080; font-size: 13px; cursor: pointer">取消</span>
+            </div>
           </div>
         </div>
+        <div style="margin-left: 15px;">${ comments }</div>
       </div>`
     }
+    if (articles.length && list.pagination) {
+      $html += `<span style="font-size: 12px; cursor: pointer;margin-left: 15px;">第${list.pagination.currentPage}页</span>`
+      if (list.pagination.currentPage > 1) {
+        $html += `<a href="#" class="pagePrev" data-page="${list.pagination.currentPage - 1}" style="font-size: 12px; cursor: pointer; margin-left: 15px;">上一页</a>`
+      }
+      if (list.pagination.currentPage * list.pagination.pageSize < list.pagination.total) {
+        $html += `<a href="#" class="pageNext" data-page="${list.pagination.currentPage + 1}" style="font-size: 12px; cursor: pointer;margin-left: 15px;">下一页</a>`
+      }
+    } 
   } else {
-    $html += '<div class="empty">这里空空如也，快去看番吧！</div>'
+    $html += '<div class="empty">这里静悄悄的呢！</div>'
   }
-
-  const replyButtons = document.querySelectorAll('.replyButton');
-  console.log(replyButtons)
-
   $chatContent.innerHTML = $html
   $mask.appendChild($chatContent)
+  // 评论回复
+  const $btns = document.querySelectorAll('.replyButton')
+  const $pagePrev = document.querySelector('.pagePrev')
+  const $pageNext = document.querySelector('.pageNext')
+  const $newTopic = document.querySelector('.newTopic')
+  const $chatArea = document.querySelector('#chatArea')
+  $newTopic.addEventListener('click', ev => {
+    $chatArea.style.display = 'block'
+    $newTopic.style.display = 'none'
+  })
+  if ($pagePrev) {
+    $pagePrev.addEventListener('click', ev => {
+      currentPage = $pagePrev.getAttribute('data-page')
+      $mask.removeChild($chatContent)
+      fetchChatData(currentPage)
+    })
+  }
+  if($pageNext) {
+    $pageNext.addEventListener('click', ev => {
+      currentPage = $pageNext.getAttribute('data-page')
+      $mask.removeChild($chatContent)
+      fetchChatData(currentPage)
+    })
+  }
+  $btns.forEach(item => {
+    item.addEventListener('click', ev => {
+      const id = ev.target.getAttribute('data-tid')
+      const $replyWrap = item.parentNode.querySelector('.replyWrap')
+      const $comfirm = $replyWrap.querySelector('.comfirm')
+      const $cancle = $replyWrap.querySelector('.cancle')
+      const $replyInput = $replyWrap.querySelector('.replyInput')
+      $replyWrap.style.display = 'block'
+      
+      $comfirm.addEventListener('click', ev => {
+        const content = $replyInput.value
+        if(content.length) {
+          // 向后台通信
+          chrome.storage.sync.get({ user: null, token: null }, function(items) {
+            if (items.token) {
+              chrome.runtime.sendMessage({
+                type: 'reply',
+                payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
+              }, function(response) {
+                fetchChatData(currentPage)
+              })
+            }
+          })
+          $replyWrap.style.display = 'none'
+          $replyInput.value = ''
+        } else {
+          $exTips.innerText = '内容不能为空！'
+          setTimeout(() => {
+            $exTips.innerText = ''
+          }, 2000)
+        }
+      })
+      $cancle.addEventListener('click', ev => {
+        $replyWrap.style.display = 'none'
+        $replyInput.value = ''
+      })
+    })
+  })
 }
-
-
 
 // 登录区域
 function createLoginContent() {
@@ -472,7 +569,7 @@ function createCommunityContent() {
   const $chatContent = document.createElement('div')
   const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 740px; margin-left: 15px; margin-top: 15px;">
     <div class="ex-content" style=" height: 105px;">
-      <textarea id="exTextArea" rows="3" cols="20" style="border: 1px solid #404041; width: 740px; max-width: 740px; min-height: 60px; max-height:60px;" placeholder="输入关键字"></textarea>
+      <textarea id="exTextArea" rows="3" cols="20" style="border: 1px solid #404041; width: 740px; max-width: 740px; min-height: 60px; max-height:60px;" placeholder="阿巴阿巴~"></textarea>
       <div id="exSubmitButton" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发布</div>
     </div>
   </div>`
@@ -483,25 +580,34 @@ function createCommunityContent() {
   // 绑定发布事件
   $exSubmitButton = document.querySelector('#exSubmitButton')
   $exSubmitButton.addEventListener('click', function() {
-    textContent = document.querySelector('#exTextArea').value
-    const data = {
-      userId: userData.id,
-      userName: userData.username,
-      content: textContent
+    const $newTopic = document.querySelector('.newTopic')
+    const $chatArea = document.querySelector('#chatArea')
+    const textContent = document.querySelector('#exTextArea').value
+    if (textContent.length) {
+      const data = {
+        userId: userData.id,
+        userName: userData.username,
+        content: textContent
+      }
+      chrome.storage.sync.get({ user: null, token: null }, function(items) {
+        if (items.token) {
+          // 向后台通信
+          const payload = data
+          payload.token = items.token
+          chrome.runtime.sendMessage({type: 'newTopic', payload: data }, function(response) {
+            document.querySelector('#exTextArea').value = ''
+            $newTopic.style.display = 'block'
+            $chatArea.style.display = 'none'
+            fetchChatData(currentPage)
+          })
+        }
+      })
+    } else {
+      $exTips.innerText = '内容不能为空！'
+        setTimeout(() => {
+          $exTips.innerText = ''
+        }, 2000)
     }
-    console.log(222, data)
-    // 向后台通信
-    chrome.runtime.sendMessage({type: 'newTopic', payload: data }, function(response) {
-      console.log(333, response)
-      // if (response.data.success) {
-      //   $exTips.innerText = response.data.message + '，正在返回首页...'
-      //   setTimeout(() => {
-      //     window.location.href='/'
-      //   }, 2000)
-      // } else {
-      //   $exTips.innerText = response.data.message
-      // }
-    })
   })
 }
 

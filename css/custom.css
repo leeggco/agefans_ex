@@ -194,9 +194,10 @@
   font-size: 12px;
   padding: 10px;
   z-index: 99;
+}
+.loginOut .out {
   cursor: pointer;
 }
-
 .baseForm {
   margin-left: 240px;
   margin-top: 30px;
@@ -205,4 +206,8 @@
 .empty {
   margin-left: 400px;
   margin-top: 50px;
+}
+
+.chat_content2 img {
+  max-width: 740px !important;
 }

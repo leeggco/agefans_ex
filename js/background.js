@@ -3,31 +3,62 @@ const hostUrl = 'http://localhost:3003'
 
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // 回复
+  if (request.type === 'reply') {
+    axios({
+      method: 'post',
+      url: hostUrl + '/comment/create', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
+      })
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
   // 主题列表
   if (request.type === 'topicList') {
-    axios.post(hostUrl + '/articles/list')
-      .then(function (response) {
-        console.log(555, response)
-        sendResponse(response)
-        chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
-        })
+    axios({
+      method: 'post',
+      url: hostUrl + '/articles/list', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
       })
-      .catch(function (error) {
-      })
-      return true // keeps the message channel open until `sendResponse` is executed
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
   }
   // 新建主题
   if (request.type === 'newTopic') {
-    axios.post(hostUrl + '/articles/create', request.payload)
-      .then(function (response) {
-        console.log(1111, response)
-        sendResponse(response)
-        chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
-        })
+    axios({
+      method: 'post',
+      url: hostUrl + '/articles/create', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
       })
-      .catch(function (error) {
-      })
-      return true // keeps the message channel open until `sendResponse` is executed
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
   }
   // 用户登录
   if (request.type === 'login') {
