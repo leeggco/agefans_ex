@@ -209,5 +209,6 @@
 }
 
 .chat_content2 img {
-  max-width: 740px !important;
+  max-width: 220px !important;
+  margin-right: 15px;
 }
