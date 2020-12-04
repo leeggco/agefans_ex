@@ -8,6 +8,8 @@
 
 3、历史列表，你看过的番会记录在这里。
 
+4、社区，分享想法番剧。
+
 ## 下载
 [谷歌商店](https://chrome.google.com/webstore/detail/llpmceedcmcimdoejmfiifnlbjfnhlck)（**推荐**）需要翻墙
 
