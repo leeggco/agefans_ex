@@ -347,7 +347,7 @@ function createChatContent(list) {
       if (articles[i].Comments.length) {
         articles[i].Comments.forEach((item, index) => {
           comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
-            <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;">↳</div>
+            <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
             <div style="margin-bottom: 5px; color: #b8b8e0;">${item.content}</div>
             <div class="left">
               <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
@@ -357,15 +357,16 @@ function createChatContent(list) {
           </div>`
         })
       }
-      $html += `<div class="item" style="padding-bottom: 12px;margin-bottom: 12px;width: 740px;margin-left: 15px;border-bottom: 2px solid #404041;box-shadow: 0px 2px 0px #060f13;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space:normal;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
+      $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 740px;margin-left: 15px;border-bottom: 2px solid #383838;">
+        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space: break-spaces;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
         <div style="display:flex; justify-content: space-between;">
           <div class="left">
             <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
             <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].updatedAt)) }</span>
           </div>
           <div class="right" style="position: relative;">
-            <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复(${articles[i].Comments.length})</span>
+            <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+            <span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>
             <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
               <input class="replyInput" placeholder="输入..." type="text" value="" />
               <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
@@ -373,7 +374,7 @@ function createChatContent(list) {
             </div>
           </div>
         </div>
-        <div style="margin-left: 15px;">${ comments }</div>
+        <div class="replyItem" style="margin-left: 15px; display:none;">${ comments }</div>
       </div>`
     }
     if (articles.length && list.pagination) {
@@ -392,6 +393,7 @@ function createChatContent(list) {
   $mask.appendChild($chatContent)
   // 评论回复
   const $btns = document.querySelectorAll('.replyButton')
+  const $replyToggle = document.querySelectorAll('.replyToggle')
   const $pagePrev = document.querySelector('.pagePrev')
   const $pageNext = document.querySelector('.pageNext')
   const $newTopic = document.querySelector('.newTopic')
@@ -414,6 +416,17 @@ function createChatContent(list) {
       fetchChatData(currentPage)
     })
   }
+  $replyToggle.forEach(item => {
+    item.addEventListener('click', ev => {
+      const $replyItem = item.parentNode.parentNode.parentNode.querySelector('.replyItem')
+      console.log($replyItem)
+      if ($replyItem.style.display === 'none') {
+        $replyItem.style.display = 'block'
+      } else {
+        $replyItem.style.display = 'none'
+      }
+    })
+  })
   $btns.forEach(item => {
     item.addEventListener('click', ev => {
       const id = ev.target.getAttribute('data-tid')
