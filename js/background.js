@@ -78,6 +78,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     axios.post(hostUrl + '/users/register', request.payload)
       .then(function (response) {
         sendResponse(response)
+        chrome.storage.sync.set({ user: response.data, token: response.data.token }, function() {
+        })
       })
       .catch(function (error) {
       })
