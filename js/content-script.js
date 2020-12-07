@@ -358,7 +358,7 @@ function createChatContent(list) {
         })
       }
       $html += `<div class="item" style="padding-bottom: 12px;margin-bottom: 12px;width: 740px;margin-left: 15px;border-bottom: 2px solid #404041;box-shadow: 0px 2px 0px #060f13;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
+        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space:normal;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
         <div style="display:flex; justify-content: space-between;">
           <div class="left">
             <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
