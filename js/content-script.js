@@ -35,6 +35,7 @@ $container.appendChild($mask)
 $mask.appendChild($exTips)
 let userData = {}
 let currentPage = 1
+let playStatus = false
 // 初始化状态
 chrome.storage.sync.get({ user: null, token: null }, function(items) {
   // 创建模块
@@ -668,6 +669,21 @@ function getBaseInfo() {
   return baseInfo
 }
 
+// 自动播放下一集
+function autoPlayToNextEpisode() {
+  let hrefURL = new URL(href);
+  if (hrefURL.searchParams.has('playid')) {
+    // 获取当前集
+    let currentEpisode = document.querySelectorAll(`[href='${hrefURL.pathname}?playid=${hrefURL.searchParams.get('playid')}']`)[0].parentNode;
+    // 获取下一集
+    let nextEpisode = currentEpisode.nextElementSibling;
+    // 点击
+    if (nextEpisode !== null) {
+      nextEpisode.firstElementChild.click();
+    }
+  }
+}
+
 // 当前播放集, 最后播放位置
 let lastPos, lastTime, cover, name, other
 
@@ -709,12 +725,22 @@ if (href.indexOf('/play/') > -1) {
       }
     }
   }
-    
+
   // 获取当前播放位置
   const timer = setInterval(() => {
+      // TODO: 这里的逻辑应该改为页面加载完后只实例化一个$video
     const $video = document.getElementById('age_playfram').contentWindow.document.querySelector('video')
     if ($video) {
       lastTime = secondToDate($video.currentTime)
+      if (!playStatus) {
+        $video.play();
+        playStatus = true;
+      }
+      // 播放快完的时候自动跳到下一集
+      if (!isNaN($video.duration)) {
+        if ($video.currentTime * 1.0 / $video.duration > 0.9)
+          autoPlayToNextEpisode()
+      }
     }
     chrome.storage.sync.set({ lastTime: lastTime })
   }, 1000)
