@@ -419,7 +419,6 @@ function createChatContent(list) {
   $replyToggle.forEach(item => {
     item.addEventListener('click', ev => {
       const $replyItem = item.parentNode.parentNode.parentNode.querySelector('.replyItem')
-      console.log($replyItem)
       if ($replyItem.style.display === 'none') {
         $replyItem.style.display = 'block'
       } else {
