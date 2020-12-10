@@ -358,8 +358,8 @@ function createChatContent(list) {
         })
       }
       $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 740px;margin-left: 15px;border-bottom: 2px solid #383838;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space: break-spaces;word-break: break-word; overflow: hidden;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
-        <div style="display:flex; justify-content: space-between;">
+        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space: pre-wrap;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
+        <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
           <div class="left">
             <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
             <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].updatedAt)) }</span>
