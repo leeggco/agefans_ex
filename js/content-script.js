@@ -349,7 +349,7 @@ function createChatContent(list) {
         articles[i].Comments.forEach((item, index) => {
           comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
             <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
-            <div style="margin-bottom: 5px; color: #b8b8e0;">${item.content}</div>
+            <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${item.content}</div>
             <div class="left">
               <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
               <span style="color: #808080; font-size: 13px">${item.userName}</span>
