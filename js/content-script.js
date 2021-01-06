@@ -739,7 +739,7 @@ if (href.indexOf('/play/') > -1) {
       // 播放快完的时候自动跳到下一集
       if (!isNaN($video.duration)) {
         if ($video.currentTime * 1.0 / $video.duration === 1) {
-          autoPlayToNextEpisode()
+          // autoPlayToNextEpisode()
         }
       }
     }
