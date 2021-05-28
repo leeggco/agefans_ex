@@ -1,6 +1,6 @@
 {
-  "name": "agefans.net，AGE动漫追番扩展",
-  "version": "1.1.163",
+  "name": "age.tv，AGE动漫追番扩展",
+  "version": "1.1.164",
   "description": "Agefans扩展追番和历史功能,让追番更简单!",
   "manifest_version": 2,
     "icons": {
@@ -10,7 +10,7 @@
     },
   "permissions": [
     "storage",
-    "http://www.agefans.net/*", "https://www.agefans.net/*", "http://www.agefans.cc/*", "https://www.agefans.cc/*"
+    "http://www.age.tv/*", "https://www.age.tv/*", "http://www.agefans.cc/*", "https://www.agefans.cc/*"
   ],
   "browser_action": {
     "dafault_title": "AGEFANS_扩展"
@@ -21,11 +21,11 @@
   },
 	"content_scripts": [
 		{
-			"matches": ["http://www.agefans.net/*", "https://www.agefans.net/*","http://www.agefans.cc/*", "https://www.agefans.cc/*"],
-      "js": ["js/content-script.js"],
+			"matches": ["http://www.age.tv/*", "https://www.age.tv/*","http://www.agefans.cc/*", "https://www.agefans.cc/*"],
+      "js": ["js/content-script.js", "js/showdown.min.js"],
       "css": ["css/custom.css"],
 			"run_at": "document_idle"
 		}
   ],
-  "homepage_url": "https://github.com/leeggco"
+  "homepage_url": "https://github.com/leeggco/agefans_ex"
 }	

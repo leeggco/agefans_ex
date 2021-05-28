@@ -20,7 +20,7 @@ $a3.setAttribute('id', 'exChat')
 $favoriteBtn.setAttribute('class', 'favorite_btn')
 $unFavoriteBtn.setAttribute('class', 'favorite_btn favorited')
 $mask.setAttribute('class', 'ex_mask')
-$mask.setAttribute('style', `min-height:${offsetHeight}px`)
+$mask.setAttribute('style', `min-height:${offsetHeight}px; left: -4px;top: -5px;border: 4px solid #303030;`)
 $exTips.setAttribute('class', 'exTips')
 $loginOut.setAttribute('class', 'loginOut')
 $a1.innerText = '追番'
@@ -270,9 +270,9 @@ function createFavoriteContent(list) {
     for (let i = 0; i < list.length; i++) {
       const data = list[i].BangumiData
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.net/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
+        <div class="thumb"><a href="https://www.agefans.cc/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.net/detail/${data.fanId}">${data.name}</a></div>
+          <div class="title"><a href="https://www.agefans.cc/detail/${data.fanId}">${data.name}</a></div>
           <div class="des">${data.description}</div>
           <div class="type">${data.region} | ${data.state}</div>
           <div class="state">
@@ -288,6 +288,7 @@ function createFavoriteContent(list) {
             }
             ${list[i].lastTime && data.other ? '| ' : ''}${data.other ? data.other : ''}
           </div>
+          <div class="state" style="margin-top: 10px">${dateFormat("YYYY年mm月dd日 HH:MM", new Date(list[i].createdAt))}</div>
         </div>
       </div>`
     }
@@ -307,9 +308,9 @@ function createHistoryContent(list) {
   if (list.length) {
     for (let i = 0; i < list.length; i++) {
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.net/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
+        <div class="thumb"><a href="https://www.agefans.cc/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.net/detail/${list[i].fanId}">${list[i].name}</a></div>
+          <div class="title"><a href="https://www.agefans.cc/detail/${list[i].fanId}">${list[i].name}</a></div>
           <div class="state">
             看到
             <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
@@ -318,7 +319,7 @@ function createHistoryContent(list) {
             </a>
             | ${list[i].other}
           </div>
-          <div class="state" style="margin-top: 10px">${dateFormat("YYYY-mm-dd HH:MM", new Date(list[i].updatedAt))}</div>
+          <div class="state" style="margin-top: 10px">${dateFormat("YYYY年mm月dd日 HH:MM", new Date(list[i].updatedAt))}</div>
         </div>
       </div>`
     }
@@ -353,21 +354,29 @@ function createChatContent(list) {
             <div class="left">
               <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
               <span style="color: #808080; font-size: 13px">${item.userName}</span>
-              <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(item.updatedAt)) }</span>
+              <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
             </div>
           </div>`
         })
       }
-      $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 740px;margin-left: 15px;border-bottom: 2px solid #383838;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;"><pre style="white-space: pre-wrap;word-wrap: break-word; overflow:hidden;color: #b8b8e0;font-size: 15px;font-family: Verdana, Arial, Helvetica, sans-serif;">${ articles[i].content }</pre></div>
+      const converter = new showdown.Converter()
+      const mdHtml = converter.makeHtml(articles[i].content)
+      let replyCount = ''
+      if (articles[i].Comments.length) {
+        replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+      } else {
+        replyCount = `<span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+      }
+      $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 650px;margin-left: 15px;border-bottom: 2px solid #383838;">
+        <div style="margin-bottom: 5px; color: #b8b8e0;">${ mdHtml }</pre></div>
         <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
           <div class="left">
             <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
-            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY-mm-dd HH:MM", new Date(articles[i].updatedAt)) }</span>
+            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(articles[i].updatedAt)) }</span>
           </div>
           <div class="right" style="position: relative;">
             <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
-            <span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>
+            ${ replyCount }
             <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
               <input class="replyInput" placeholder="输入..." type="text" value="" />
               <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
@@ -381,7 +390,7 @@ function createChatContent(list) {
     if (articles.length && list.pagination) {
       $html += `<span style="font-size: 12px; cursor: pointer;margin-left: 15px;">第${list.pagination.currentPage}页</span>`
       if (list.pagination.currentPage > 1) {
-        $html += `<a href="#" class="pagePrev" data-page="${list.pagination.currentPage - 1}" style="font-size: 12px; cursor: pointer; margin-left: 15px;">上一页</a>`
+        $html += `<a href="#" class="pagePrev" data-page="1" style="font-size: 12px; cursor: pointer; margin-left: 15px;">第一页</a><a href="#" class="pagePrev" data-page="${list.pagination.currentPage - 1}" style="font-size: 12px; cursor: pointer; margin-left: 15px;">上一页</a>`
       }
       if (list.pagination.currentPage * list.pagination.pageSize < list.pagination.total) {
         $html += `<a href="#" class="pageNext" data-page="${list.pagination.currentPage + 1}" style="font-size: 12px; cursor: pointer;margin-left: 15px;">下一页</a>`
@@ -580,9 +589,9 @@ function createRegisterContent() {
 // 聊天区域
 function createCommunityContent() {
   const $chatContent = document.createElement('div')
-  const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 740px; margin-left: 15px; margin-top: 15px;">
+  const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 650px; margin-left: 15px; margin-top: 15px;">
     <div class="ex-content" style=" height: 105px;">
-      <textarea id="exTextArea" rows="3" cols="20" style="border: 1px solid #404041; width: 740px; max-width: 740px; min-height: 60px; max-height:60px;" placeholder="阿巴阿巴~"></textarea>
+      <textarea id="exTextArea" rows="3" cols="20" contenteditable="plaintext-only" style="border: 1px solid #404041; width: 650px; max-width: 740px; min-height: 60px; max-height:60px;user-modify: read-write-plaintext-only;" placeholder="阿巴阿巴~"></textarea>
       <div id="exSubmitButton" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发布</div>
     </div>
   </div>`
@@ -595,7 +604,7 @@ function createCommunityContent() {
   $exSubmitButton.addEventListener('click', function() {
     const $newTopic = document.querySelector('.newTopic')
     const $chatArea = document.querySelector('#chatArea')
-    const textContent = document.querySelector('#exTextArea').value
+    const textContent = escapeHtml(document.querySelector('#exTextArea').value)
     if (textContent.length) {
       const data = {
         userId: userData.id,
@@ -823,4 +832,14 @@ function getQueryString(name) {
   var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
   var r = window.location.search.substr(1).match(reg);
   if (r != null) return unescape(r[2]); return null;
+}
+// HTML 转译
+function escapeHtml(str) {
+    str = str.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quto;')
+      .replace(/'/g, '&#39;')
+      .replace(/ /g, '&#32;')
+  return str
 }
