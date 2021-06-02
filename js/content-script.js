@@ -662,6 +662,8 @@ function createChatContent(list) {
           const id = ev.target.getAttribute('data-id')
           $articleList.style.display = 'none'
           $detailBox.style.display = 'block'
+          document.querySelector('#chatArea').style.display = 'none'
+          document.querySelector('.newTopic').style.display = 'block'
           // 向后台通信
           getArticleDetail(id)
         })
@@ -679,6 +681,8 @@ function createChatContent(list) {
       const $newTopic = document.querySelector('.newTopic')
       const $chatArea = document.querySelector('#chatArea')
       $newTopic.addEventListener('click', ev => {
+        document.querySelector('.detailBox').style.display = 'none'
+        document.querySelector('.articleList').style.display = 'block'
         $chatArea.style.display = 'block'
         $newTopic.style.display = 'none'
       })

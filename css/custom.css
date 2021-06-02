@@ -261,6 +261,7 @@ table {
   margin-right: 15px;
 }
 .chat_content2 p {
+  line-height: 155%;
   white-space: pre-wrap;
   word-wrap: break-word; 
   overflow:hidden;
@@ -276,7 +277,7 @@ table {
   padding-right: 20px;
 }
 .leastComments .mate {
-  color: #888899;
+  color: #b8b8e0;
   font-size: 16px;
   font-weight: bold;
 }
@@ -288,7 +289,7 @@ table {
 .leastComments .title {
   font-size: 14px;
   cursor: pointer;
-  color: rgb(136, 136, 153);
+  color: #b8b8e0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -319,4 +320,7 @@ table {
 }
 .hide {
   display: none;
+}
+.replyItem {
+  line-height: 150%;
 }
