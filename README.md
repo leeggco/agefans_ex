@@ -27,6 +27,12 @@
 **提示：** 如果使用过程中出现异常是因为程序更新导致，重新登录账号即可。
 
 ## 改动日志
+**v1.2.00** 
+1. 新增最近回复模块
+2. 番剧内增加留言板功能
+3. 支持Markdown语法
+4. 部分体验优化
+
 **v1.1.11** 
 1. 新增交流模块，插件用户可以一起分享想法啦！
 
@@ -41,6 +47,12 @@
 
 v1.0.2 
 
+## 赞助
+
+开心的话，请作者喝冰阔落 (o≖◡≖)
+
+![未标题-1.png](https://i.loli.net/2020/06/18/xl2PujGQ8hSNofR.png)![未标题2-1.png](https://i.loli.net/2020/06/18/McHCBzaKlFrjTON.png)
+
 ## 截图
 ### 我的追番
 ![image.png](https://i.loli.net/2020/06/15/lEAdS3Xxi8YgB9Q.png)
@@ -49,10 +61,6 @@ v1.0.2
 ### 追番按钮
 ![image.png](https://i.loli.net/2020/06/15/gm6aH8FXRfAzyrJ.png)
 
-## 赞助
 
-开心的话，请作者喝冰阔落 (o≖◡≖)
-
-![未标题-1.png](https://i.loli.net/2020/06/18/xl2PujGQ8hSNofR.png)![未标题2-1.png](https://i.loli.net/2020/06/18/McHCBzaKlFrjTON.png)
 ## 声明
 声明：本扩展作为自由开源的浏览器辅助插件，仅供学习交流，任何人均可免费获取产品与源码。如果认为你的合法权益收到侵犯请马上联系作者。
