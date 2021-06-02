@@ -1,6 +1,7 @@
 # agefans.net，AGE动漫追番插件
 本插件程序是对agefans.net网站进行功能上的扩展，功能包括追番记录、历史记录、交流社区等，追番必备插件。
 
+[agex-web网页端](http://agex.gkzhb.tk/) 感谢[@gkzhb](https://github.com/gkzhb/agex-web) 的贡献。
 ## 功能
 1、插件用户（不与agefans.net共通数据，插件用户需要**先注册**才能使用全部功能）
 
