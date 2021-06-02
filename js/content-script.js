@@ -645,7 +645,7 @@ function createChatContent(list) {
             $html += `<a href="#" class="pageNext" data-page="${list.pagination.currentPage + 1}" style="font-size: 12px; cursor: pointer;margin-left: 15px;">下一页</a>`
           }
         }
-        $html += "</div><div class='articleDetail' style='margin-top: 20px;'></div></div>"
+        $html += "</div><div class='detailBox'><a style='float: right; margin-top: -25px; font-size: 14px;' class='backLink' href='javascript:;'>关闭</a><div class='articleDetail' style='margin-top: 20px;'></div></div></div>"
       } else {
         $html += '<div class="empty">这里静悄悄的呢！</div>'
       }
@@ -653,16 +653,22 @@ function createChatContent(list) {
       $mask.appendChild($chatContent)
       const $articleList = document.querySelector('.articleList')
       const $articleDetail = document.querySelector('.articleDetail')
+      const $detailBox = document.querySelector('.detailBox')
+      const $backLink = document.querySelector('.backLink')
       // 最近回复
       const $titles = document.querySelector('.leastComments').querySelectorAll('.title')
       $titles.forEach((item) => {
         item.addEventListener('click', (ev) => {
           const id = ev.target.getAttribute('data-id')
           $articleList.style.display = 'none'
-          $articleDetail.style.display = 'block'
+          $detailBox.style.display = 'block'
           // 向后台通信
           getArticleDetail(id)
         })
+      })
+      $backLink.addEventListener('click', (ev) => {
+        $articleList.style.display = 'block'
+        $detailBox.style.display = 'none'
       })
     
       // 评论回复
@@ -923,7 +929,7 @@ function createRegisterContent() {
         </p>
         <button class="nbutton2" id="registerBtn" type="button" value="Submit">注册</button>
         <p>
-        <a href="javscript:;" id="toLogin">已有账号？取登录</a>
+        <a href="javscript:;" id="toLogin">已有账号？去登录</a>
       </p>
     </div>
   </div>`
