@@ -1,8 +1,65 @@
 const hostUrl = 'http://122.51.248.81:3000'
-// const hostUrl = 'http://localhost:3000'
+// const hostUrl = 'http://localhost:3333'
 
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // 获取主题详情
+  if (request.type === 'getArticleDetail') {
+    axios({
+      method: 'post',
+      url: hostUrl + '/articles/getDetail', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
+      })
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
+  // 获取最新的评论
+  if (request.type === 'getLatestComments') {
+    axios({
+      method: 'post',
+      url: hostUrl + '/comment/getLatest', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
+      })
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
+  // 获取番剧的评论
+  if (request.type === 'getArticles') {
+    axios({
+      method: 'post',
+      url: hostUrl + '/articles/getArticles', 
+      data: request.payload,
+      headers: {
+        authorization: request.payload.token
+      }
+    })
+    .then(function (response) {
+      sendResponse(response)
+      chrome.storage.sync.set({ article: response.data, token: response.data.token }, function() {
+      })
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
   // 回复
   if (request.type === 'reply') {
     axios({

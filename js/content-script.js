@@ -84,13 +84,238 @@ for (let i = 0; i < $navs.length; i++) {
 // 追番
 const hrefIndex = href.indexOf('detail')
 if (hrefIndex > -1) {
+  console.log('留言板')
   const fanid = href.substr(hrefIndex + 7)
   const $blockcontent = document.querySelector('.div_right').querySelector('.blockcontent')
   $favoriteBtn.setAttribute('data-fanid', fanid)
   $unFavoriteBtn.setAttribute('data-fanid', fanid)
 
+  // 插件留言板
+  const exCommentBlock = document.createElement('div')
+  const exCommentButton = document.createElement('button')
+  const $btncomment = document.getElementById('btncomment')
+  const $commentsBlock = document.getElementById('comments_block')
+  const $btnsParent = $btncomment.parentElement
+  const $commentsParent = $commentsBlock.parentElement
+  exCommentBlock.setAttribute('class', 'switchblock')
+  exCommentBlock.setAttribute('hidden', true)
+  exCommentButton.setAttribute('class', 'switchbtn')
+  exCommentButton.setAttribute('style', 'margin-left:5px;color: #b8b8e0;')
+  exCommentButton.innerText = 'EX留言板'
+  $btnsParent.appendChild(exCommentButton)
+  $commentsParent.appendChild(exCommentBlock)
+  // 插入评论框
+  const $html = `<div id="chatArea2" class="chat_content3" style="width:100%; margin-top: 15px;">
+    <div class="ex-content" style="height: 105px;">
+      <textarea id="exTextArea2" rows="3" cols="20" contenteditable="plaintext-only" style="border: 1px solid #404041; width: 99%; max-width: 740px; min-height: 60px; max-height:60px;user-modify: read-write-plaintext-only;" placeholder="请文明交流"></textarea>
+      <div id="exSubmitButton2" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发 送</div>
+      <span title="支持Markdown"><svg t="1622604542704" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2683" width="20" height="20"><path d="M945.6 824H75.2c-41.6 0-73.6-32-73.6-73.6V272c0-41.6 32-73.6 73.6-73.6h873.6c41.6 0 73.6 32 73.6 73.6v481.6c0 38.4-35.2 70.4-76.8 70.4z m-697.6-145.6v-192l99.2 121.6 99.2-121.6v192h96V345.6h-99.2l-99.2 121.6-99.2-121.6H145.6v334.4l102.4-1.6z m656-166.4h-99.2V345.6h-99.2V512H608l147.2 172.8L904 512z" fill="#888888" p-id="2684"></path></svg></span>
+    </div>
+  </div><div id="commentArea"></div>`
+  exCommentBlock.innerHTML = $html
+  // 给按钮添加点击事件
+  const $btns = $btnsParent.querySelectorAll('.switchbtn')
+  const $switchblocks = document.querySelectorAll('.switchblock')
+  console.log('$btns:', $btns)
+  console.log('$$switchblocks:', $switchblocks)
+  $btns.forEach((item, index) => {
+    item.addEventListener('click', (ev) => {
+      $btns.forEach(btn => {
+        btn.setAttribute('class', 'switchbtn')
+      })
+      $switchblocks.forEach(block => {
+        block.setAttribute('hidden', true)
+      })
+      console.log(ev, index)
+      ev.target.setAttribute('class', 'switchbtn switchbtn_current')
+      $switchblocks[index].removeAttribute('hidden')
+    })
+  })
+  // 绑定发布事件
+  $exSubmitButton = document.querySelector('#exSubmitButton2')
+  $exSubmitButton.addEventListener('click', function() {
+    const $newTopic = document.querySelector('.newTopic')
+    const $chatArea = document.querySelector('#chatArea2')
+    const textContent = escapeHtml(document.querySelector('#exTextArea2').value)
+    if (textContent.length) {
+      const data = {
+        userId: userData.id,
+        userName: userData.username,
+        content: textContent,
+        pin: fanid
+      }
+      chrome.storage.sync.get({ user: null, token: null }, function(items) {
+        if (items.token) {
+          // 向后台通信
+          const payload = data
+          payload.token = items.token
+          chrome.runtime.sendMessage({type: 'newTopic', payload: data }, function(response) {
+            document.querySelector('#exTextArea2').value = ''
+            // $newTopic.style.display = 'block'
+            // $chatArea.style.display = 'none'
+            // fetchChatData(currentPage)
+            console.log('response', response)
+            getBangumiArticle(fanid)
+          })
+        }
+      })
+    } else {
+      $exTips.innerText = '内容不能为空！'
+        setTimeout(() => {
+          $exTips.innerText = ''
+        }, 2000)
+    }
+  })
+
+  getBangumiArticle(fanid)
+  // 点击切换
+  // exCommentButton()
   // 初始化状态
   initFn(fanid, $blockcontent)
+}
+
+function getBangumiArticle(fanid) {
+  console.log('留言板22')
+    // 获取番剧评论
+    chrome.runtime.sendMessage({type: 'getArticles', payload: { 'fanId': fanid } }, function(response) {
+      if (response.data.articles && response.data.articles.length) {
+        const articles = response.data.articles
+        let $html = ''
+        for (let i = 0; i < articles.length; i++) {
+          let comments = ''
+          if (articles[i].Comments.length) {
+            articles[i].Comments.forEach((item, index) => {
+              comments += `<div class="comment" style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
+                <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
+                <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${item.content}</div>
+                <div class="left">
+                  <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
+                  <span style="color: #808080; font-size: 13px">${item.userName}</span>
+                  <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
+                </div>
+              </div>`
+            })
+          }
+          const converter = new showdown.Converter()
+          const mdHtml = converter.makeHtml(articles[i].content)
+          const bname = articles[i].Bangumi ? articles[i].Bangumi.name : ''
+          const burl = articles[i].Bangumi ? `https://www.agefans.cc/detail/${articles[i].Bangumi.fanId}` : ''
+          let replyCount = ''
+          if (articles[i].Comments.length) {
+            replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+          } else {
+            replyCount = `<span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+          }
+          $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 650px;margin-left: 15px;border-bottom: 2px solid #383838;">
+            <div style="margin-bottom: 5px; color: #b8b8e0;">${ mdHtml }</div>
+            <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
+              <div class="left">
+                <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
+                <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(articles[i].updatedAt)) }</span>
+                <a style="color: #808080; font-size: 13px;text-decoration: none;" href="${burl}">${ bname ? `来自：${bname}` : ''}</a>
+              </div>
+              <div class="right" style="position: relative;">
+                <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+                ${ replyCount }
+                <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
+                  <input class="replyInput" placeholder="输入..." type="text" value="" />
+                  <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
+                  <span class="cancle" style="color: #808080; font-size: 13px; cursor: pointer">取消</span>
+                </div>
+              </div>
+            </div>
+            <div class="replyItem" style="margin-left: 15px; display:none;">${ comments }</div>
+          </div>`
+        }
+        const $commentArea = document.getElementById('commentArea')
+        $commentArea.innerHTML = $html
+        // 评论回复
+        const $btns = document.querySelectorAll('.replyButton')
+        const $replyToggle = document.querySelectorAll('.replyToggle')
+        const $pagePrev = document.querySelector('.pagePrev')
+        const $pageNext = document.querySelector('.pageNext')
+        if ($pagePrev) {
+          $pagePrev.addEventListener('click', ev => {
+            currentPage = $pagePrev.getAttribute('data-page')
+            $mask.removeChild($chatContent)
+            fetchChatData(currentPage)
+          })
+        }
+        if($pageNext) {
+          $pageNext.addEventListener('click', ev => {
+            currentPage = $pageNext.getAttribute('data-page')
+            $mask.removeChild($chatContent)
+            fetchChatData(currentPage)
+          })
+        }
+        $replyToggle.forEach(item => {
+          item.addEventListener('click', ev => {
+            const $replyItem = item.parentNode.parentNode.parentNode.querySelector('.replyItem')
+            if ($replyItem.style.display === 'none') {
+              $replyItem.style.display = 'block'
+            } else {
+              $replyItem.style.display = 'none'
+            }
+          })
+        })
+        $btns.forEach(item => {
+          item.addEventListener('click', ev => {
+            const id = ev.target.getAttribute('data-tid')
+            const $replyWrap = item.parentNode.querySelector('.replyWrap')
+            const $comfirm = $replyWrap.querySelector('.comfirm')
+            const $cancle = $replyWrap.querySelector('.cancle')
+            const $replyInput = $replyWrap.querySelector('.replyInput')
+            const $replyToggle = item.parentElement.querySelector('.replyToggle')
+            const $replyItem = item.parentElement.parentElement.parentElement.querySelector('.replyItem')
+            $replyWrap.style.display = 'block'
+            
+            $comfirm.addEventListener('click', ev => {
+              const content = $replyInput.value
+              if(content.length) {
+                // 向后台通信
+                chrome.storage.sync.get({ user: null, token: null }, function(items) {
+                  if (items.token) {
+                    chrome.runtime.sendMessage({
+                      type: 'reply',
+                      payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
+                    }, function(response) {
+                      // fetchChatData(currentPage)
+                      console.log(333, response)
+                      const comment = response.data.comment
+                      const $comments = $replyItem.querySelectorAll('.comment')
+                      let $html = $replyItem.innerHTML
+                      $html += `<div class="comment" style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
+                        <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
+                        <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${comment.content}</div>
+                        <div class="left">
+                          <span style="float: right; color: #808080; font-size: 13px">#${$comments.length + 1}</span>
+                          <span style="color: #808080; font-size: 13px">${comment.userName}</span>
+                          <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(comment.updatedAt)) }</span>
+                        </div>
+                      </div>`
+                      $replyItem.innerHTML = $html
+                      $replyToggle.innerText = `(${$comments.length + 1})`
+                    })
+                  }
+                })
+                $replyWrap.style.display = 'none'
+                $replyInput.value = ''
+              } else {
+                $exTips.innerText = '内容不能为空！'
+                setTimeout(() => {
+                  $exTips.innerText = ''
+                }, 2000)
+              }
+            })
+            $cancle.addEventListener('click', ev => {
+              $replyWrap.style.display = 'none'
+              $replyInput.value = ''
+            })
+          })
+        })
+      }
+      console.log('response222', response.articles)
+    })
 }
 
 // 我的追番
@@ -333,146 +558,309 @@ function createHistoryContent(list) {
 
 // 交流区
 function createChatContent(list) {
-  
   const oldEl = document.querySelector('.chat_content2')
   const articles = list.articles.rows
   const $chatContent = document.createElement('div')
   $chatContent.setAttribute('class', 'chat_content2')
-  $chatContent.style.position = 'relative'
+  // $chatContent.style.position = 'relative'
   if (oldEl) {
     $mask.removeChild(oldEl)
   }
-  let $html = `<div class="newTopic" style=" position: absolute; right: 85px; top: 50px; "><a href="#">发表新主题</a></div>`
-  if (articles.length) {
-    for (let i = 0; i < articles.length; i++) {
-      let comments = ''
-      if (articles[i].Comments.length) {
-        articles[i].Comments.forEach((item, index) => {
-          comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
-            <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
-            <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${item.content}</div>
-            <div class="left">
-              <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
-              <span style="color: #808080; font-size: 13px">${item.userName}</span>
-              <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
-            </div>
-          </div>`
-        })
-      }
-      const converter = new showdown.Converter()
-      const mdHtml = converter.makeHtml(articles[i].content)
-      let replyCount = ''
-      if (articles[i].Comments.length) {
-        replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
-      } else {
-        replyCount = `<span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
-      }
-      $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 650px;margin-left: 15px;border-bottom: 2px solid #383838;">
-        <div style="margin-bottom: 5px; color: #b8b8e0;">${ mdHtml }</pre></div>
-        <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
-          <div class="left">
-            <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
-            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(articles[i].updatedAt)) }</span>
+  // 向后台通信
+  chrome.runtime.sendMessage({type: 'getLatestComments', payload: {} }, function(response) {
+    if (response) {
+      const latestComments = response.data.comment
+      console.log(1113, response)
+      console.log(111, articles)
+      let commentItems = ''
+      latestComments.forEach(item => {
+        console.log(42424, item)
+        commentItems += `<div class="item">
+          <div class="title" data-id="${ item.Article.id }" title="${ item.Article.content.toString() }">${ item.Article.content.toString() }</div>
+          <div class="comment">${ item.content }</div>
+          <div class="info">
+            <span style="color: #808080; font-size: 13px">${ item.userName }</span>
+            <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
           </div>
-          <div class="right" style="position: relative;">
-            <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
-            ${ replyCount }
-            <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
-              <input class="replyInput" placeholder="输入..." type="text" value="" />
-              <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
-              <span class="cancle" style="color: #808080; font-size: 13px; cursor: pointer">取消</span>
-            </div>
+        </div>`
+      })
+      // let $html = `<div class="newTopic" style=" position: absolute; right: 85px; top: 50px; "><a href="#">发表新主题</a></div>`
+      let $html = `<div class="rightSide" style="position: absolute;right: 0px;top: 50px;width: 320px;">
+        <div class="newTopic"><a href="#">发表新主题</a></div>
+        <div class="leastComments">
+          <div class="mate">最新回复</div>
+          ${ commentItems }
+        </div>
+        <div class="links">
+          <div class="github">
+            <a title="源码仓库" href= "https://github.com/leeggco/agefans_ex" target="_blank" >
+              <svg t="1622274947795" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1183" width="30" height="30"><path d="M874.336 786.304c-56.96 78.016-130.496 131.84-220.64 161.856-10.304 1.824-18.368 0.448-22.848-4.032a22.4 22.4 0 0 1-7.2-17.504v-122.88c0-37.632-10.304-65.44-30.464-82.912a409.856 409.856 0 0 0 59.616-10.368 222.752 222.752 0 0 0 54.72-22.816c18.848-10.784 34.528-23.36 47.104-38.592 12.544-15.232 22.848-35.904 30.912-61.44 8.096-25.568 12.128-54.688 12.128-87.904 0-47.072-15.232-86.976-46.208-120.16 14.368-35.456 13.024-74.912-4.48-118.848-10.752-3.616-26.432-1.344-47.072 6.272a301.44 301.44 0 0 0-53.824 25.568l-21.984 13.888A407.776 407.776 0 0 0 512 291.2c-38.56 0-75.776 4.928-112.096 15.232a444.48 444.48 0 0 0-24.672-15.68c-10.336-6.272-26.464-13.888-48.896-22.432-21.952-8.96-39.008-11.232-50.24-8.064-17.024 43.936-18.368 83.424-4.032 118.848-30.496 33.632-46.176 73.536-46.176 120.608 0 33.216 4.032 62.336 12.128 87.456 8.032 25.12 18.368 45.76 30.496 61.44 12.544 15.68 28.224 28.704 47.072 39.04 18.848 10.304 37.216 17.92 54.72 22.816a409.6 409.6 0 0 0 59.648 10.368c-15.712 13.856-25.12 34.048-28.704 60.064a99.744 99.744 0 0 1-26.464 8.512 178.208 178.208 0 0 1-33.184 2.688c-13.024 0-25.568-4.032-38.144-12.544-12.544-8.512-23.296-20.64-32.256-36.32a97.472 97.472 0 0 0-28.256-30.496c-11.232-8.064-21.088-12.576-28.704-13.92l-11.648-1.792c-8.096 0-13.92 0.928-17.056 2.688-3.136 1.792-4.032 4.032-2.688 6.72 1.344 2.688 3.136 5.408 5.376 8.096 2.24 2.688 4.928 4.928 7.616 7.168l4.032 2.688c8.544 4.032 17.056 11.232 25.568 21.984 8.544 10.752 14.368 20.64 18.4 29.6l5.824 13.44c4.928 14.816 13.44 26.912 25.568 35.872 12.096 8.992 25.088 14.816 39.008 17.504 13.888 2.688 27.36 4.032 40.352 4.032 12.992 0 23.776-0.448 32.288-2.24l13.472-2.24c0 14.784 0 32.288 0.416 52.032 0 19.744 0.48 30.496 0.48 31.392a22.624 22.624 0 0 1-7.648 17.472c-4.928 4.48-12.992 5.824-23.296 4.032-90.144-30.048-163.68-83.84-220.64-161.888C92.256 708.256 64 620.352 64 523.04c0-81.152 20.192-156.064 60.096-224.672a445.184 445.184 0 0 1 163.232-163.232C355.936 95.232 430.816 75.04 512 75.04s156.064 20.192 224.672 60.096a445.184 445.184 0 0 1 163.232 163.232C939.808 366.528 960 441.888 960 523.04c0 97.76-28.704 185.216-85.664 263.264z" p-id="1184" fill="#808080"></path></svg>
+            </a>
           </div>
         </div>
-        <div class="replyItem" style="margin-left: 15px; display:none;">${ comments }</div>
       </div>`
-    }
-    if (articles.length && list.pagination) {
-      $html += `<span style="font-size: 12px; cursor: pointer;margin-left: 15px;">第${list.pagination.currentPage}页</span>`
-      if (list.pagination.currentPage > 1) {
-        $html += `<a href="#" class="pagePrev" data-page="1" style="font-size: 12px; cursor: pointer; margin-left: 15px;">第一页</a><a href="#" class="pagePrev" data-page="${list.pagination.currentPage - 1}" style="font-size: 12px; cursor: pointer; margin-left: 15px;">上一页</a>`
-      }
-      if (list.pagination.currentPage * list.pagination.pageSize < list.pagination.total) {
-        $html += `<a href="#" class="pageNext" data-page="${list.pagination.currentPage + 1}" style="font-size: 12px; cursor: pointer;margin-left: 15px;">下一页</a>`
-      }
-    } 
-  } else {
-    $html += '<div class="empty">这里静悄悄的呢！</div>'
-  }
-  $chatContent.innerHTML = $html
-  $mask.appendChild($chatContent)
-  // 评论回复
-  const $btns = document.querySelectorAll('.replyButton')
-  const $replyToggle = document.querySelectorAll('.replyToggle')
-  const $pagePrev = document.querySelector('.pagePrev')
-  const $pageNext = document.querySelector('.pageNext')
-  const $newTopic = document.querySelector('.newTopic')
-  const $chatArea = document.querySelector('#chatArea')
-  $newTopic.addEventListener('click', ev => {
-    $chatArea.style.display = 'block'
-    $newTopic.style.display = 'none'
-  })
-  if ($pagePrev) {
-    $pagePrev.addEventListener('click', ev => {
-      currentPage = $pagePrev.getAttribute('data-page')
-      $mask.removeChild($chatContent)
-      fetchChatData(currentPage)
-    })
-  }
-  if($pageNext) {
-    $pageNext.addEventListener('click', ev => {
-      currentPage = $pageNext.getAttribute('data-page')
-      $mask.removeChild($chatContent)
-      fetchChatData(currentPage)
-    })
-  }
-  $replyToggle.forEach(item => {
-    item.addEventListener('click', ev => {
-      const $replyItem = item.parentNode.parentNode.parentNode.querySelector('.replyItem')
-      if ($replyItem.style.display === 'none') {
-        $replyItem.style.display = 'block'
+      if (articles.length) {
+        $html += '<div class="articleBox"><div class="articleList">'
+        for (let i = 0; i < articles.length; i++) {
+          let comments = ''
+          if (articles[i].Comments.length) {
+            articles[i].Comments.forEach((item, index) => {
+              comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
+                <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
+                <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${item.content}</div>
+                <div class="left">
+                  <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
+                  <span style="color: #808080; font-size: 13px">${item.userName}</span>
+                  <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
+                </div>
+              </div>`
+            })
+          }
+          const converter = new showdown.Converter()
+          const mdHtml = converter.makeHtml(articles[i].content)
+          const bname = articles[i].Bangumi ? articles[i].Bangumi.name : ''
+          const burl = articles[i].Bangumi ? `https://www.agefans.cc/detail/${articles[i].Bangumi.fanId}` : ''
+          let replyCount = ''
+          if (articles[i].Comments.length) {
+            replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+          } else {
+            replyCount = `<span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
+          }
+          $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 650px;margin-left: 15px;border-bottom: 2px solid #383838;">
+            <div style="margin-bottom: 5px; color: #b8b8e0;">${ mdHtml }</div>
+            <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
+              <div class="left">
+                <span style="color: #808080; font-size: 13px">${ articles[i].userName }</span>
+                <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(articles[i].updatedAt)) }</span>
+                <a style="color: #808080; font-size: 13px;text-decoration: none;" href="${burl}">${ bname ? `来自：${bname}` : ''}</a>
+              </div>
+              <div class="right" style="position: relative;">
+                <span class="replyButton" data-tid="${articles[i].id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+                ${ replyCount }
+                <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
+                  <input class="replyInput" placeholder="输入..." type="text" value="" />
+                  <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
+                  <span class="cancle" style="color: #808080; font-size: 13px; cursor: pointer">取消</span>
+                </div>
+              </div>
+            </div>
+            <div class="replyItem" style="margin-left: 15px; display:none;">${ comments }</div>
+          </div>`
+        }
+        if (articles.length && list.pagination) {
+          $html += `<span style="font-size: 12px; cursor: pointer;margin-left: 15px;">第${list.pagination.currentPage}页</span>`
+          if (list.pagination.currentPage > 1) {
+            $html += `<a href="#" class="pagePrev" data-page="1" style="font-size: 12px; cursor: pointer; margin-left: 15px;">第一页</a><a href="#" class="pagePrev" data-page="${list.pagination.currentPage - 1}" style="font-size: 12px; cursor: pointer; margin-left: 15px;">上一页</a>`
+          }
+          if (list.pagination.currentPage * list.pagination.pageSize < list.pagination.total) {
+            $html += `<a href="#" class="pageNext" data-page="${list.pagination.currentPage + 1}" style="font-size: 12px; cursor: pointer;margin-left: 15px;">下一页</a>`
+          }
+        }
+        $html += "</div><div class='articleDetail' style='margin-top: 20px;'></div></div>"
       } else {
-        $replyItem.style.display = 'none'
+        $html += '<div class="empty">这里静悄悄的呢！</div>'
       }
-    })
-  })
-  $btns.forEach(item => {
-    item.addEventListener('click', ev => {
-      const id = ev.target.getAttribute('data-tid')
-      const $replyWrap = item.parentNode.querySelector('.replyWrap')
-      const $comfirm = $replyWrap.querySelector('.comfirm')
-      const $cancle = $replyWrap.querySelector('.cancle')
-      const $replyInput = $replyWrap.querySelector('.replyInput')
-      $replyWrap.style.display = 'block'
-      
-      $comfirm.addEventListener('click', ev => {
-        const content = $replyInput.value
-        if(content.length) {
+      $chatContent.innerHTML = $html
+      $mask.appendChild($chatContent)
+      const $articleList = document.querySelector('.articleList')
+      const $articleDetail = document.querySelector('.articleDetail')
+      // 最近回复
+      const $titles = document.querySelector('.leastComments').querySelectorAll('.title')
+      $titles.forEach((item) => {
+        item.addEventListener('click', (ev) => {
+          const id = ev.target.getAttribute('data-id')
+          $articleList.style.display = 'none'
+          $articleDetail.style.display = 'block'
           // 向后台通信
-          chrome.storage.sync.get({ user: null, token: null }, function(items) {
-            if (items.token) {
-              chrome.runtime.sendMessage({
-                type: 'reply',
-                payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
-              }, function(response) {
-                fetchChatData(currentPage)
+          getArticleDetail(id)
+        })
+      })
+    
+      // 评论回复
+      const $btns = document.querySelectorAll('.replyButton')
+      const $replyToggle = document.querySelectorAll('.replyToggle')
+      const $pagePrev = document.querySelector('.pagePrev')
+      const $pageNext = document.querySelector('.pageNext')
+      const $newTopic = document.querySelector('.newTopic')
+      const $chatArea = document.querySelector('#chatArea')
+      $newTopic.addEventListener('click', ev => {
+        $chatArea.style.display = 'block'
+        $newTopic.style.display = 'none'
+      })
+      if ($pagePrev) {
+        $pagePrev.addEventListener('click', ev => {
+          currentPage = $pagePrev.getAttribute('data-page')
+          $mask.removeChild($chatContent)
+          fetchChatData(currentPage)
+        })
+      }
+      if($pageNext) {
+        $pageNext.addEventListener('click', ev => {
+          currentPage = $pageNext.getAttribute('data-page')
+          $mask.removeChild($chatContent)
+          fetchChatData(currentPage)
+        })
+      }
+      $replyToggle.forEach(item => {
+        item.addEventListener('click', ev => {
+          const $replyItem = item.parentNode.parentNode.parentNode.querySelector('.replyItem')
+          if ($replyItem.style.display === 'none') {
+            $replyItem.style.display = 'block'
+          } else {
+            $replyItem.style.display = 'none'
+          }
+        })
+      })
+      $btns.forEach(item => {
+        item.addEventListener('click', ev => {
+          const id = ev.target.getAttribute('data-tid')
+          const $replyWrap = item.parentNode.querySelector('.replyWrap')
+          const $comfirm = $replyWrap.querySelector('.comfirm')
+          const $cancle = $replyWrap.querySelector('.cancle')
+          const $replyInput = $replyWrap.querySelector('.replyInput')
+          $replyWrap.style.display = 'block'
+          
+          $comfirm.addEventListener('click', ev => {
+            const content = $replyInput.value
+            if(content.length) {
+              // 向后台通信
+              chrome.storage.sync.get({ user: null, token: null }, function(items) {
+                if (items.token) {
+                  chrome.runtime.sendMessage({
+                    type: 'reply',
+                    payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
+                  }, function(response) {
+                    fetchChatData(currentPage)
+                  })
+                }
               })
+              $replyWrap.style.display = 'none'
+              $replyInput.value = ''
+            } else {
+              $exTips.innerText = '内容不能为空！'
+              setTimeout(() => {
+                $exTips.innerText = ''
+              }, 2000)
             }
           })
-          $replyWrap.style.display = 'none'
-          $replyInput.value = ''
-        } else {
-          $exTips.innerText = '内容不能为空！'
-          setTimeout(() => {
-            $exTips.innerText = ''
-          }, 2000)
+          $cancle.addEventListener('click', ev => {
+            $replyWrap.style.display = 'none'
+            $replyInput.value = ''
+          })
+        })
+      })
+    }
+  })
+}
+
+function getArticleDetail(id) {
+  const $articleList = document.querySelector('.articleList')
+  const $articleDetail = document.querySelector('.articleDetail')
+  chrome.storage.sync.get({ user: null, token: null }, function (items) {
+    if (items.token) {
+      chrome.runtime.sendMessage(
+        {
+          type: 'getArticleDetail',
+          payload: {
+            userId: items.user.data.id,
+            userName: items.user.data.username,
+            id: id,
+            token: items.token,
+          },
+        },
+        function (response) {
+          console.log(5555, response)
+          let $html = ''
+          const article = response.data.article
+          let comments = ''
+          if (article.Comments.length) {
+            article.Comments.forEach((item, index) => {
+              comments += `<div style="margin-top: 10px;padding-top: 8px;border-top: 1px dashed #333; position: relative;">
+                <div style="position: absolute;left: -14px;top: 50%;margin-top: -21px;color: #607d8b;"></div>
+                <div style="margin-bottom: 5px; color: #b8b8e0;overflow:hidden;">${item.content}</div>
+                <div class="left">
+                  <span style="float: right; color: #808080; font-size: 13px">#${index + 1}</span>
+                  <span style="color: #808080; font-size: 13px">${item.userName}</span>
+                  <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(item.updatedAt)) }</span>
+                </div>
+              </div>`
+            })
+          }
+          const converter = new showdown.Converter()
+          const mdHtml = converter.makeHtml(article.content)
+          const bname = article.Bangumi ? article.Bangumi.name : ''
+          const burl = article.Bangumi ? `https://www.agefans.cc/detail/${article.Bangumi.fanId}` : ''
+          let replyCount = ''
+          if (article.Comments.length) {
+            replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${article.Comments.length})</span>`
+          } else {
+            replyCount = `<span class="replyToggle" style="color: #808080; font-size: 13px; cursor: pointer">(${article.Comments.length})</span>`
+          }
+          $html += `<div class="item" style="padding-bottom: 20px;margin-bottom: 20px;width: 650px;margin-left: 15px;border-bottom: 2px solid #383838;">
+            <div style="margin-bottom: 5px; color: #b8b8e0;">${ mdHtml }</div>
+            <div style="display:flex; justify-content: space-between;word-wrap: break-word;">
+              <div class="left">
+                <span style="color: #808080; font-size: 13px">${ article.userName }</span>
+                <span style="color: #808080; font-size: 13px">${ dateFormat("YYYY年mm月dd日 HH:MM", new Date(article.updatedAt)) }</span>
+                <a style="color: #808080; font-size: 13px;text-decoration: none;" href="${burl}">${ bname ? `来自：${bname}` : ''}</a>
+              </div>
+              <div class="right" style="position: relative;">
+                <span class="replyButton" data-tid="${article.id}" style="color: #808080; font-size: 13px; cursor: pointer">回复</span>
+                ${ replyCount }
+                <div class="replyWrap" style="position: absolute; display: none;right: 0px;top: -0;width: 238px;background: #202020;">
+                  <input class="replyInput" placeholder="输入..." type="text" value="" />
+                  <span class="comfirm" style="color: #808080; font-size: 13px; cursor: pointer">确定</span>
+                  <span class="cancle" style="color: #808080; font-size: 13px; cursor: pointer">取消</span>
+                </div>
+              </div>
+            </div>
+            <div class="replyItem" style="margin-left: 15px;">${ comments }</div>
+          </div>`
+          $articleDetail.innerHTML = $html
+  
+          // 评论回复
+          const $btns = document.querySelectorAll('.replyButton')
+          $btns.forEach(item => {
+            item.addEventListener('click', ev => {
+              const id = ev.target.getAttribute('data-tid')
+              const $replyWrap = item.parentNode.querySelector('.replyWrap')
+              const $comfirm = $replyWrap.querySelector('.comfirm')
+              const $cancle = $replyWrap.querySelector('.cancle')
+              const $replyInput = $replyWrap.querySelector('.replyInput')
+              $replyWrap.style.display = 'block'
+              
+              $comfirm.addEventListener('click', ev => {
+                const content = $replyInput.value
+                if(content.length) {
+                  // 向后台通信
+                  chrome.storage.sync.get({ user: null, token: null }, function(items) {
+                    if (items.token) {
+                      chrome.runtime.sendMessage({
+                        type: 'reply',
+                        payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
+                      }, function(response) {
+                        getArticleDetail(id)
+                      })
+                    }
+                  })
+                  $replyWrap.style.display = 'none'
+                  $replyInput.value = ''
+                } else {
+                  $exTips.innerText = '内容不能为空！'
+                  setTimeout(() => {
+                    $exTips.innerText = ''
+                  }, 2000)
+                }
+              })
+              $cancle.addEventListener('click', ev => {
+                $replyWrap.style.display = 'none'
+                $replyInput.value = ''
+              })
+            })
+          })
         }
-      })
-      $cancle.addEventListener('click', ev => {
-        $replyWrap.style.display = 'none'
-        $replyInput.value = ''
-      })
-    })
+      )
+    }
   })
 }
 
@@ -586,13 +974,15 @@ function createRegisterContent() {
   })
 }
 
-// 聊天区域
+// 交流区域
 function createCommunityContent() {
   const $chatContent = document.createElement('div')
-  const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 650px; margin-left: 15px; margin-top: 15px;">
+  const $html = `<div id="chatArea" class="chat_content" style="display:none; width: 650px; margin-left: 15px; padding-top: 15px;">
     <div class="ex-content" style=" height: 105px;">
       <textarea id="exTextArea" rows="3" cols="20" contenteditable="plaintext-only" style="border: 1px solid #404041; width: 650px; max-width: 740px; min-height: 60px; max-height:60px;user-modify: read-write-plaintext-only;" placeholder="阿巴阿巴~"></textarea>
-      <div id="exSubmitButton" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发布</div>
+      <div id="exSubmitButton" style="border: 1px solid #666;width: 100px; margin-top: 5px; cursor:pointer; text-align: center; line-height: 28px;height: 28px;float: right;">发 送</div>
+      <a href="javascript:;" id="cancel" style="float: right; font-size: 14px; cursor: pointer; margin-top: 13px; margin-right:10px;">取消</a>
+      <span title="支持Markdown"><svg t="1622604542704" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2683" width="20" height="20"><path d="M945.6 824H75.2c-41.6 0-73.6-32-73.6-73.6V272c0-41.6 32-73.6 73.6-73.6h873.6c41.6 0 73.6 32 73.6 73.6v481.6c0 38.4-35.2 70.4-76.8 70.4z m-697.6-145.6v-192l99.2 121.6 99.2-121.6v192h96V345.6h-99.2l-99.2 121.6-99.2-121.6H145.6v334.4l102.4-1.6z m656-166.4h-99.2V345.6h-99.2V512H608l147.2 172.8L904 512z" fill="#888888" p-id="2684"></path></svg></span>
     </div>
   </div>`
   $chatContent.setAttribute('class', 'chat_content')
@@ -601,11 +991,14 @@ function createCommunityContent() {
 
   // 绑定发布事件
   $exSubmitButton = document.querySelector('#exSubmitButton')
+  $cancel = document.querySelector('#cancel')
   $exSubmitButton.addEventListener('click', function() {
     const $newTopic = document.querySelector('.newTopic')
     const $chatArea = document.querySelector('#chatArea')
     const textContent = escapeHtml(document.querySelector('#exTextArea').value)
+    console.log(13414141)
     if (textContent.length) {
+      $exSubmitButton.innerText = '发送中'
       const data = {
         userId: userData.id,
         userName: userData.username,
@@ -620,16 +1013,24 @@ function createCommunityContent() {
             document.querySelector('#exTextArea').value = ''
             $newTopic.style.display = 'block'
             $chatArea.style.display = 'none'
+            $exSubmitButton.innerText = '发 送'
             fetchChatData(currentPage)
           })
         }
       })
     } else {
-      $exTips.innerText = '内容不能为空！'
-        setTimeout(() => {
-          $exTips.innerText = ''
-        }, 2000)
+      $exTips.innerText = '写点什么吧！'
+      setTimeout(() => {
+        $exTips.innerText = ''
+      }, 2000)
     }
+  })
+  $cancel.addEventListener('click', function() {
+    const $newTopic = document.querySelector('.newTopic')
+    const $chatArea = document.querySelector('#chatArea')
+    document.querySelector('#exTextArea').value = ''
+    $newTopic.style.display = 'block'
+    $chatArea.style.display = 'none'
   })
 }
 
@@ -821,7 +1222,7 @@ function dateFormat(fmt, date) {
 
   // 判断日期是否为今天
   if (new Date().getDate() === new Date(date).getDate()) {
-    fmt = '今天 ' + fmt.substr(10)
+    fmt = '今天 ' + fmt.substr(10).replace('日', '')
   }
 
   return fmt
