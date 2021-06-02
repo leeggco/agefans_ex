@@ -84,7 +84,6 @@ for (let i = 0; i < $navs.length; i++) {
 // 追番
 const hrefIndex = href.indexOf('detail')
 if (hrefIndex > -1) {
-  console.log('留言板')
   const fanid = href.substr(hrefIndex + 7)
   const $blockcontent = document.querySelector('.div_right').querySelector('.blockcontent')
   $favoriteBtn.setAttribute('data-fanid', fanid)
@@ -116,8 +115,6 @@ if (hrefIndex > -1) {
   // 给按钮添加点击事件
   const $btns = $btnsParent.querySelectorAll('.switchbtn')
   const $switchblocks = document.querySelectorAll('.switchblock')
-  console.log('$btns:', $btns)
-  console.log('$$switchblocks:', $switchblocks)
   $btns.forEach((item, index) => {
     item.addEventListener('click', (ev) => {
       $btns.forEach(btn => {
@@ -126,7 +123,6 @@ if (hrefIndex > -1) {
       $switchblocks.forEach(block => {
         block.setAttribute('hidden', true)
       })
-      console.log(ev, index)
       ev.target.setAttribute('class', 'switchbtn switchbtn_current')
       $switchblocks[index].removeAttribute('hidden')
     })
@@ -154,7 +150,6 @@ if (hrefIndex > -1) {
             // $newTopic.style.display = 'block'
             // $chatArea.style.display = 'none'
             // fetchChatData(currentPage)
-            console.log('response', response)
             getBangumiArticle(fanid)
           })
         }
@@ -175,7 +170,6 @@ if (hrefIndex > -1) {
 }
 
 function getBangumiArticle(fanid) {
-  console.log('留言板22')
     // 获取番剧评论
     chrome.runtime.sendMessage({type: 'getArticles', payload: { 'fanId': fanid } }, function(response) {
       if (response.data.articles && response.data.articles.length) {
@@ -280,7 +274,6 @@ function getBangumiArticle(fanid) {
                       payload: { userId: items.user.data.id, userName: items.user.data.username, articleId:id, content: content, token: items.token }
                     }, function(response) {
                       // fetchChatData(currentPage)
-                      console.log(333, response)
                       const comment = response.data.comment
                       const $comments = $replyItem.querySelectorAll('.comment')
                       let $html = $replyItem.innerHTML
@@ -314,7 +307,6 @@ function getBangumiArticle(fanid) {
           })
         })
       }
-      console.log('response222', response.articles)
     })
 }
 
@@ -570,11 +562,8 @@ function createChatContent(list) {
   chrome.runtime.sendMessage({type: 'getLatestComments', payload: {} }, function(response) {
     if (response) {
       const latestComments = response.data.comment
-      console.log(1113, response)
-      console.log(111, articles)
       let commentItems = ''
       latestComments.forEach(item => {
-        console.log(42424, item)
         commentItems += `<div class="item">
           <div class="title" data-id="${ item.Article.id }" title="${ item.Article.content.toString() }">${ item.Article.content.toString() }</div>
           <div class="comment">${ item.content }</div>
@@ -769,7 +758,6 @@ function getArticleDetail(id) {
           },
         },
         function (response) {
-          console.log(5555, response)
           let $html = ''
           const article = response.data.article
           let comments = ''
@@ -996,7 +984,6 @@ function createCommunityContent() {
     const $newTopic = document.querySelector('.newTopic')
     const $chatArea = document.querySelector('#chatArea')
     const textContent = escapeHtml(document.querySelector('#exTextArea').value)
-    console.log(13414141)
     if (textContent.length) {
       $exSubmitButton.innerText = '发送中'
       const data = {
