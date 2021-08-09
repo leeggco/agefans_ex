@@ -3,6 +3,33 @@ const hostUrl = 'http://122.51.248.81:3000'
 
 // 监听来自content-script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // 获取bangumi搜索结果
+  if (request.type === 'getBangumiSearch') {
+    axios({
+      method: 'get',
+      url: 'https://bangumi.tv/subject_search/' + request.name
+    })
+    .then(function (response) {
+      sendResponse(response)
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
+  // 获取bangumi评论
+  if (request.type === 'getBangumiComments') {
+    console.log(request)
+    axios({
+      method: 'get',
+      url: request.url
+    })
+    .then(function (response) {
+      sendResponse(response)
+    })
+    .catch(function (error) {
+    })
+    return true // keeps the message channel open until `sendResponse` is executed
+  }
   // 获取主题详情
   if (request.type === 'getArticleDetail') {
     axios({

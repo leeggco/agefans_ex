@@ -324,3 +324,33 @@ table {
 .replyItem {
   line-height: 150%;
 }
+#commentArea img {
+  width: 100%;
+}
+#comment_box .clearit {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: #808080;
+  font-size: 13px;
+  text-decoration: none;
+  border-bottom: 2px solid #383838;
+}
+#comment_box .text {
+  color: #808080;
+  font-size: 13px;
+}
+#comment_box .text a {
+  color: #808080;
+  font-size: 13px;
+  text-decoration: none;
+}
+#comment_box .text p{
+  line-height: 155%;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  color: rgb(184, 184, 224);
+  font-size: 15px;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  padding-top: 5px;
+}
