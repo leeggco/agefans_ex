@@ -1,6 +1,6 @@
 {
   "name": "age.tv，Agefans动漫追番扩展",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "description": "Agefans扩展追番和历史功能,让追番更简单!",
   "manifest_version": 2,
     "icons": {
@@ -10,7 +10,7 @@
     },
   "permissions": [
     "storage",
-    "http://www.age.tv/*", "https://www.age.tv/*", "http://www.agefans.cc/*", "https://www.agefans.cc/*", "https://*.bangumi.tv/*", "http://*.bangumi.tv/*"
+    "http://www.agefans.live/*", "https://www.agefans.live/*", "http://www.agefans.vip/*", "https://www.agefans.vip/*", "https://*.bangumi.tv/*", "http://*.bangumi.tv/*"
   ],
   "host_permissions": [
     "http://www.bangumi.com/*",
@@ -25,7 +25,7 @@
   },
 	"content_scripts": [
 		{
-			"matches": ["http://www.age.tv/*", "https://www.age.tv/*","http://www.agefans.cc/*", "https://www.agefans.cc/*"],
+			"matches": ["http://www.agefans.live/*", "https://www.agefans.live/*","http://www.agefans.vip/*", "https://www.agefans.vip/*"],
       "js": ["js/axios.min.js", "js/content-script.js", "js/xss.js", "js/showdown.min.js"],
       "css": ["css/custom.css"],
 			"run_at": "document_idle"

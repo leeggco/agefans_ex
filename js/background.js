@@ -302,6 +302,7 @@ chrome.runtime.onConnect.addListener(function(port) {
           if (url.indexOf('lastTime') > -1) {
             url = url.substr(0, url.indexOf('lastTime'))
           }
+          url = url.substr(url.indexOf('/play') + 1)
           const params = {
             userId: items.user.data.id,
             fanId: fanid,

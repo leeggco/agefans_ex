@@ -1,5 +1,6 @@
 const href = window.location.href
 const offsetHeight = document.querySelector('#container').offsetHeight
+const site = document.location.protocol + '//' + document.domain
 
 // 创建并注入标签
 const $nav = document.querySelector('#nav')
@@ -206,10 +207,9 @@ if (hrefIndex > -1) {
           const lis2 = html2.querySelector('#comment_box').querySelectorAll('.item')
           lis2.forEach(item => {
             item.querySelectorAll('a').forEach(el => {
-              el.setAttribute('href', '###')
+              el.setAttribute('href', 'javascript:;')
             })
           })
-          
           // 分页
           const hasMorePage = html2.querySelector('.p_pages')
           const pageDiv = document.createElement('div')
@@ -292,7 +292,7 @@ function getBangumiArticle(fanid) {
         const converter = new showdown.Converter()
         const mdHtml = converter.makeHtml(articles[i].content)
         const bname = articles[i].Bangumi ? articles[i].Bangumi.name : ''
-        const burl = articles[i].Bangumi ? `https://www.agefans.cc/detail/${articles[i].Bangumi.fanId}` : ''
+        const burl = articles[i].Bangumi ? `${site}/detail/${articles[i].Bangumi.fanId}` : ''
         let replyCount = ''
         if (articles[i].Comments.length) {
           replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
@@ -585,20 +585,22 @@ function createFavoriteContent(list) {
   if (list.length) {
     for (let i = 0; i < list.length; i++) {
       const data = list[i].BangumiData
+      console.log(222, site)
+      console.log(222, `<a href="${site}/detail/${data.fanId}"><img src="${data.cover}" /></a>`)
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.cc/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
+        <div class="thumb"><a href="${site}/detail/${data.fanId}"><img src="${data.cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.cc/detail/${data.fanId}">${data.name}</a></div>
+          <div class="title"><a href="${site}/detail/${data.fanId}">${data.name}</a></div>
           <div class="des">${data.description}</div>
           <div class="type">${data.region} | ${data.state}</div>
           <div class="state">
             ${ list[i].lastTime 
               ? 
-              `看到 <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
+              `看到 <a href="/${list[i].lastUrl}&lastTime=${list[i].lastTime}">
                 ${list[i].lastTime.indexOf('00') === 0 ? list[i].lastTime.substring(3) : list[i].lastTime} ${list[i].lastPos ? list[i].lastPos : ''}
               </a>`
               :
-              `<a href="${list[i].lastUrl}">
+              `<a href="/${list[i].lastUrl}">
                 ${list[i].lastTime ? list[i].lastTime : ''} ${list[i].lastPos ? list[i].lastPos : ''}
               </a>`
             }
@@ -624,12 +626,12 @@ function createHistoryContent(list) {
   if (list.length) {
     for (let i = 0; i < list.length; i++) {
       $html += `<div class="item">
-        <div class="thumb"><a href="https://www.agefans.cc/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
+        <div class="thumb"><a href="${site}/detail/${list[i].fanId}"><img src="${list[i].cover}" /></a></div>
         <div class="info">
-          <div class="title"><a href="https://www.agefans.cc/detail/${list[i].fanId}">${list[i].name}</a></div>
+          <div class="title"><a href="${site}/detail/${list[i].fanId}">${list[i].name}</a></div>
           <div class="state">
             看到
-            <a href="${list[i].lastUrl}&lastTime=${list[i].lastTime}">
+            <a href="/${list[i].lastUrl}&lastTime=${list[i].lastTime}">
               ${list[i].lastTime.indexOf('00') === 0 ? list[i].lastTime.substring(3) : list[i].lastTime} 
               ${list[i].lastPos ? list[i].lastPos : ''}
             </a>
@@ -708,7 +710,7 @@ function createChatContent(list) {
           // const mdHtml = articles[i].content)
           const mdHtml = converter.makeHtml(articles[i].content)
           const bname = articles[i].Bangumi ? articles[i].Bangumi.name : ''
-          const burl = articles[i].Bangumi ? `https://www.agefans.cc/detail/${articles[i].Bangumi.fanId}` : ''
+          const burl = articles[i].Bangumi ? `${site}/detail/${articles[i].Bangumi.fanId}` : ''
           let replyCount = ''
           if (articles[i].Comments.length) {
             replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${articles[i].Comments.length})</span>`
@@ -895,7 +897,7 @@ function getArticleDetail(id) {
           const converter = new showdown.Converter()
           const mdHtml = converter.makeHtml(filterXSS(article.content))
           const bname = article.Bangumi ? article.Bangumi.name : ''
-          const burl = article.Bangumi ? `https://www.agefans.cc/detail/${article.Bangumi.fanId}` : ''
+          const burl = article.Bangumi ? `${site}/detail/${article.Bangumi.fanId}` : ''
           let replyCount = ''
           if (article.Comments.length) {
             replyCount = `<span class="replyToggle" style="color: #b8b8e0; font-size: 13px; cursor: pointer">(${article.Comments.length})</span>`
