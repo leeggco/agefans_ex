@@ -52,7 +52,7 @@ v1.0.2
 
 ## 赞助
 
-开心的话，请作者喝冰阔落吧！谢谢 (o≖◡≖)
+开心的话，请作者喝冰可乐吧！谢谢 (o≖◡≖)
 
 ![未标题-1.png](https://i.loli.net/2020/06/18/xl2PujGQ8hSNofR.png)![未标题2-1.png](https://i.loli.net/2020/06/18/McHCBzaKlFrjTON.png)
 
