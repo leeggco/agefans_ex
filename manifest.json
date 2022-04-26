@@ -1,6 +1,6 @@
 {
   "name": "age.tv，Agefans动漫追番扩展",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "description": "Agefans扩展追番和历史功能,让追番更简单!",
   "manifest_version": 2,
   "icons": {
@@ -16,6 +16,10 @@
     "https://www.agefans.vip/*",
     "http://www.agemys.com/*",
     "https://www.agemys.com/*",
+    "http://www.agefans.tw/*",
+    "https://www.agefans.tw/*",
+    "http://www.age.tv/*",
+    "https://www.age.tv/*",
     "https://*.bangumi.tv/*",
     "http://*.bangumi.tv/*"
   ],
@@ -34,6 +38,10 @@
         "https://www.agefans.live/*",
         "http://www.agefans.vip/*",
         "https://www.agefans.vip/*",
+        "http://www.agefans.tw/*",
+        "https://www.agefans.tw/*",
+        "http://www.age.tv/*",
+        "https://www.age.tv/*",
         "http://www.agemys.com/*",
         "https://www.agemys.com/*"
       ],
